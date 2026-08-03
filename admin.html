@@ -3,104 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catalyst — Admin Dashboard</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Catalyst | Admin Dashboard</title>
+    
+    <!-- Link the shared external themes CSS -->
+    <link rel="stylesheet" href="css/themes.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+        }
+
+        body, header, main, .card, .theme-toggle, .status-banner {
+            transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            perspective: 1200px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--bg-pattern);
+            background-size: var(--bg-pattern-size);
+            background-position: var(--bg-pattern-pos);
+            opacity: var(--bg-pattern-opacity);
+            z-index: -1;
+            transition: opacity 0.35s ease;
+        }
+
+        /* Ambient Space Rockets for Theme 6 */
+        .space-ambient { display: none; position: fixed; pointer-events: none; z-index: 0; }
+        body.theme-space .space-ambient { display: block; }
+        .rocket-float-1 { top: 15%; left: 5%; font-size: 2.5rem; animation: floatSpace 12s ease-in-out infinite alternate; filter: drop-shadow(0 0 10px #00f0ff); }
+        .rocket-float-2 { bottom: 20%; right: 6%; font-size: 3.5rem; animation: floatSpace 9s ease-in-out infinite alternate-reverse; filter: drop-shadow(0 0 15px #ff3366); }
+        @keyframes floatSpace { 0% { transform: translateY(0px) rotate(0deg); } 100% { transform: translateY(-30px) rotate(12deg); } }
+
+        /* Transition Overlays */
+        #transitionOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; opacity: 0; will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; }
+        .hyperspace-streaks, .pixel-grid, .matrix-container, .sine-wave-svg, .center-expand-circle { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; will-change: transform, opacity; transform: translateZ(0); }
+        
+        /* HYPERSPACE TRANSITION */
+        body.anim-hyperspace-active { animation: hyperspaceBounceIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; transform: translateZ(0); }
+        .hyperspace-streaks { top: 50%; left: 50%; width: 200vmax; height: 200vmax; transform: translate(-50%, -50%) scale(0.05); background: conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(0, 240, 255, 0.8) 10deg, transparent 20deg, rgba(255, 0, 127, 0.8) 45deg, transparent 60deg, rgba(255, 255, 255, 0.9) 90deg, transparent 110deg, rgba(0, 240, 255, 0.8) 180deg, transparent 200deg, rgba(255, 0, 127, 0.8) 270deg, transparent 290deg); border-radius: 50%; }
+        #transitionOverlay.trans-hyperspace .hyperspace-streaks { animation: lightStretchWarp 1.4s cubic-bezier(0.1, 0.85, 0.25, 1) forwards; }
+        @keyframes hyperspaceBounceIn { 0% { transform: translateZ(-2500px) scale(0.08); opacity: 0.2; } 50% { transform: translateZ(120px) scale(1.05); opacity: 1; } 75% { transform: translateZ(-20px) scale(0.98); } 100% { transform: translateZ(0) scale(1); opacity: 1; } }
+        @keyframes lightStretchWarp { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.05) rotate(0deg); } 40% { opacity: 1; transform: translate(-50%, -50%) scale(1.8) rotate(180deg); } 80% { opacity: 0.6; transform: translate(-50%, -50%) scale(3.5) rotate(360deg); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(5) rotate(450deg); } }
+
+        /* PIXEL GRID TRANSITION */
+        .pixel-grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); }
+        #transitionOverlay.trans-pixel, #transitionOverlay.trans-pixel .pixel-grid { opacity: 1; }
+        .pixel-block { background-color: #000000; opacity: 0; transform: scale(0); will-change: transform, opacity; }
+        #transitionOverlay.trans-pixel .pixel-block { animation: blockPop 0.45s ease-in-out forwards; }
+        #transitionOverlay.trans-pixel-reveal .pixel-block { background-color: #ff007f; box-shadow: 0 0 20px #00f0ff; animation: blockPopReverse 0.45s ease-in-out forwards; }
+        @keyframes blockPop { 0% { transform: scale(0); opacity: 0; } 50%, 100% { transform: scale(1.02); opacity: 1; } }
+        @keyframes blockPopReverse { 0% { transform: scale(1.02); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(0); opacity: 0; } }
+
+        /* ROBOTIC MATRIX DROP */
+        .matrix-container { background: #0a0f0d; overflow: hidden; }
+        #transitionOverlay.trans-robotic, #transitionOverlay.trans-robotic .matrix-container { opacity: 1; }
+        .matrix-column { position: absolute; top: -100%; width: 4%; height: 100%; background: linear-gradient(180deg, transparent, #00ff66 80%, #ffffff 100%); box-shadow: 0 0 12px #00ff66; opacity: 0.95; will-change: transform; }
+        #transitionOverlay.trans-robotic .matrix-column { animation: matrixRain 0.75s linear forwards; }
+        @keyframes matrixRain { 0% { transform: translateY(0); } 100% { transform: translateY(200%); } }
+
+        /* SINE WAVE SWEEP */
+        #transitionOverlay.trans-sinewave, #transitionOverlay.trans-sinewave .sine-wave-svg { opacity: 1; }
+        .sine-wave-svg { fill: #10b981; transform: translateY(-100%); }
+        #transitionOverlay.trans-sinewave .sine-wave-svg { animation: waveSweep 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes waveSweep { 0% { transform: translateY(-100%); opacity: 0; } 40%, 60% { opacity: 1; } 100% { transform: translateY(100%); opacity: 0; } }
+
+        /* CENTER SCALE TRANSITION */
+        .center-expand-circle { background: var(--accent-color); border-radius: 50%; top: 50%; left: 50%; width: 150vmax; height: 150vmax; transform: translate(-50%, -50%) scale(0); }
+        #transitionOverlay.trans-center, #transitionOverlay.trans-center .center-expand-circle { opacity: 1; }
+        #transitionOverlay.trans-center .center-expand-circle { animation: expandCenterScale 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        @keyframes expandCenterScale { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 50% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
+
+        /* Contextual Displays */
+        .mono-dark-only, .mono-light-only, .gamedev-only, .robot-only, .bio-only, .space-only { display: none !important; }
+        body:not(.theme-mono-light):not(.theme-gamedev):not(.theme-robotic):not(.theme-biological):not(.theme-space) .mono-dark-only { display: inline-block !important; }
+        body.theme-mono-light .mono-light-only { display: inline-block !important; }
+        body.theme-gamedev .gamedev-only { display: inline-block !important; }
+        body.theme-robotic .robot-only { display: inline-block !important; }
+        body.theme-biological .bio-only { display: inline-block !important; }
+        body.theme-space .space-only { display: inline-block !important; }
+
+        /* Header & Content */
+        header { border-bottom: 2px solid var(--accent-color); padding: 15px 25px; background: var(--header-bg); backdrop-filter: blur(8px); box-shadow: var(--glow-shadow); position: relative; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .logo { width: 42px; height: 42px; border: 2px solid var(--accent-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: var(--accent-color); box-shadow: var(--glow-shadow); background: rgba(0,0,0,0.2); }
+        .team-name { font-size: 1.3rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; text-shadow: var(--glow-shadow); }
+        .header-controls { display: flex; gap: 12px; }
+        .theme-toggle { background: transparent; border: 2px solid var(--accent-color); color: var(--accent-color); padding: 8px 16px; cursor: pointer; font-weight: bold; border-radius: 4px; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .theme-toggle:hover { background-color: var(--accent-color); color: var(--bg-color); box-shadow: var(--glow-shadow); }
+
+        main { flex: 1; padding: 30px 20px; max-width: 960px; margin: 0 auto; width: 100%; position: relative; z-index: 1; }
+        .status-banner { border: 1px dashed var(--accent-secondary); background: rgba(255, 255, 255, 0.03); padding: 12px 18px; text-align: center; margin-bottom: 25px; font-size: 0.85rem; color: var(--accent-secondary); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 2.1rem; margin-bottom: 15px; text-transform: uppercase; color: var(--accent-color); text-shadow: var(--glow-shadow); }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { border: 1px solid var(--border-color); background-color: var(--card-bg); padding: 20px; border-radius: 8px; position: relative; overflow: hidden; backdrop-filter: blur(6px); }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent-color), var(--accent-secondary)); }
+        .card h3 { margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--accent-color); }
+        .card p { opacity: 0.9; margin-bottom: 15px; font-size: 0.9rem; }
+        .btn-action { display: inline-block; padding: 8px 16px; background: var(--accent-color); color: var(--bg-color); border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; }
+        .btn-action:hover { background: var(--accent-secondary); color: #fff; }
+    </style>
 </head>
 <body>
-    <div class="admin-guard-screen" id="adminGuardScreen">
-        <div class="guard-box"><h1>Checking Access…</h1><p>Please wait while we verify your account.</p></div>
+    <div class="space-ambient rocket-float-1">🚀</div>
+    <div class="space-ambient rocket-float-2">🛰️</div>
+
+    <div id="transitionOverlay">
+        <div class="hyperspace-streaks"></div>
+        <div class="pixel-grid" id="pixelGrid"></div>
+        <div class="matrix-container" id="matrixContainer"></div>
+        <svg class="sine-wave-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <path d="M0,192L48,197.3C96,203,192,213,288,192C384,171,480,117,576,112C672,107,768,149,864,165.3C960,181,1056,171,1152,149.3C1248,128,1344,96,1392,80L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+        </svg>
+        <div class="center-expand-circle"></div>
     </div>
 
-    <div class="admin-shell" id="adminShell" style="display:none;">
-        <aside class="admin-sidebar">
-            <div class="brand"><div class="logo">&lt;/&gt;</div><div class="team-name" style="font-size:1rem;">Catalyst</div></div>
-            <nav class="admin-nav">
-                <button class="admin-nav-item active" data-page="overview" onclick="adminGoTo('overview')">Overview</button>
-                <button class="admin-nav-item" data-page="events" onclick="adminGoTo('events')">Events</button>
-                <button class="admin-nav-item" data-page="content" onclick="adminGoTo('content')">Site Content</button>
-                <button class="admin-nav-item" data-page="theme" onclick="adminGoTo('theme')">Theme</button>
-            </nav>
-            <div class="admin-sidebar-footer">
-                <div class="user-chip" style="margin-bottom:10px;"><span class="avatar">A</span><span id="adminUserName">—</span><span class="badge badge-admin">Admin</span></div>
-                <a href="index.html" class="btn-link" style="display:block; margin-bottom:10px;">View public site</a>
-                <button type="button" class="btn-outline" onclick="handleAdminLogout()" style="width:100%;">Log out</button>
+    <header>
+        <div class="brand">
+            <div class="logo">
+                <span class="mono-dark-only">🛡️</span>
+                <span class="mono-light-only">🛡️</span>
+                <span class="gamedev-only">⚙️</span>
+                <span class="robot-only">🔧</span>
+                <span class="bio-only">🔬</span>
+                <span class="space-only">📡</span>
             </div>
-        </aside>
+            <div class="team-name">Catalyst Admin</div>
+        </div>
+        <div class="header-controls">
+            <button class="theme-toggle" onclick="cycleTheme()" id="themeBtn">MODE</button>
+            <button class="theme-toggle" onclick="window.location.href='index.html'">RETURN</button>
+        </div>
+    </header>
 
-        <main class="admin-main">
-            <section class="admin-page active" id="admin-overview">
-                <div class="admin-page-header"><div><h1>Dashboard Overview</h1><p class="admin-page-subtitle">A snapshot of Catalyst's events and users.</p></div></div>
-                <div class="stat-grid" id="statGrid"><div class="loading-state">Loading stats…</div></div>
-            </section>
+    <main>
+        <div class="status-banner">
+            <span>SECURE ACCESS GRANTED // ELEVATED PRIVILEGES ACTIVE</span>
+            <span id="themeIndicator" style="font-weight: bold;">THEME 1/6: MONOCHROME DARK ⬛</span>
+        </div>
 
-            <section class="admin-page" id="admin-events">
-                <div class="admin-page-header"><div><h1>Event Management</h1><p class="admin-page-subtitle">Create, edit, publish, and remove Catalyst events.</p></div><button type="button" class="btn-solid" onclick="openEventForm(null)">+ Add Event</button></div>
-                <div class="toolbar"><div class="search-bar"><input type="text" id="adminEventSearch" placeholder="Search by title, category, location..."></div></div>
-                <div id="eventsTableWrap"><div class="loading-state">Loading events…</div></div>
-            </section>
+        <h1>System Dashboard</h1>
+        <p>Manage event pipelines, user access, and system deployments.</p>
 
-            <section class="admin-page" id="admin-content">
-                <div class="admin-page-header"><div><h1>Site Content</h1><p class="admin-page-subtitle">Edit the copy shown on the public site. Changes go live immediately.</p></div></div>
-                <div class="content-section">
-                    <h3>Construction Banner</h3>
-                    <div class="checkbox-row" style="margin-bottom:12px;"><input type="checkbox" id="cmsBannerEnabled"><label for="cmsBannerEnabled">Show banner on the site</label></div>
-                    <div class="form-group"><label for="cmsBannerText">Banner text</label><input type="text" id="cmsBannerText"></div>
-                    <button type="button" class="btn-outline" id="cmsBannerSaveBtn" onclick="saveBannerContent()">Save Banner</button>
-                </div>
-                <div class="content-section"><h3>Home Page</h3>
-                    <div class="form-group"><label for="cmsHomeHeading">Heading</label><input type="text" id="cmsHomeHeading"></div>
-                    <div class="form-group"><label for="cmsHomeIntro">Intro paragraph</label><textarea id="cmsHomeIntro"></textarea></div>
-                    <div class="form-group"><label for="cmsHomeCtaHeading">Newsletter heading</label><input type="text" id="cmsHomeCtaHeading"></div>
-                    <div class="form-group"><label for="cmsHomeCtaText">Newsletter text</label><input type="text" id="cmsHomeCtaText"></div>
-                    <button type="button" class="btn-outline" id="cmsHomeSaveBtn" onclick="saveHomeContent()">Save Home</button>
-                </div>
-                <div class="content-section"><h3>About Us</h3>
-                    <div class="form-group"><label for="cmsAboutHeading">Heading</label><input type="text" id="cmsAboutHeading"></div>
-                    <div class="form-group"><label for="cmsAboutParagraph1">Paragraph 1</label><textarea id="cmsAboutParagraph1"></textarea></div>
-                    <div class="form-group"><label for="cmsAboutParagraph2">Paragraph 2</label><textarea id="cmsAboutParagraph2"></textarea></div>
-                    <button type="button" class="btn-outline" id="cmsAboutSaveBtn" onclick="saveAboutContent()">Save About</button>
-                </div>
-                <div class="content-section"><h3>Resources &amp; Contact</h3>
-                    <div class="form-group"><label for="cmsMoreSponsorship">Sponsorship text</label><textarea id="cmsMoreSponsorship"></textarea></div>
-                    <div class="form-group"><label for="cmsMoreVolunteer">Volunteer text</label><textarea id="cmsMoreVolunteer"></textarea></div>
-                    <button type="button" class="btn-outline" id="cmsMoreSaveBtn" onclick="saveMoreContent()">Save Resources</button>
-                </div>
-                <div class="content-section"><h3>Footer</h3>
-                    <div class="form-group"><label for="cmsFooterText">Footer text</label><input type="text" id="cmsFooterText"></div>
-                    <button type="button" class="btn-outline" id="cmsFooterSaveBtn" onclick="saveFooterContent()">Save Footer</button>
-                </div>
-            </section>
+        <div class="grid">
+            <div class="card">
+                <h3>Event Management</h3>
+                <p>Create, update, or delete upcoming events, game jams, and workshops in the database.</p>
+                <button class="btn-action">Manage Events</button>
+            </div>
+            <div class="card">
+                <h3>User Profiles</h3>
+                <p>Manage registered users, assign roles, and handle administrative permissions.</p>
+                <button class="btn-action">View Users</button>
+            </div>
+            <div class="card">
+                <h3>Site Settings</h3>
+                <p>Configure global parameters, SEO meta tags, and site-wide notifications.</p>
+                <button class="btn-action">Edit Settings</button>
+            </div>
+        </div>
+    </main>
 
-            <section class="admin-page" id="admin-theme">
-                <div class="admin-page-header"><div><h1>Theme Control</h1><p class="admin-page-subtitle">Choose the global theme behavior and customize the public site's colors.</p></div></div>
-                <div id="themeAdminMount"></div>
-            </section>
-        </main>
-    </div>
-
-    <div class="modal-overlay" id="eventModal"><div class="modal-box modal-box-lg">
-        <button type="button" class="modal-close" onclick="U.closeModal('eventModal')">&times;</button>
-        <h2 id="eventFormTitle">Add Event</h2><p class="modal-subtitle">Fields marked with a title are required — everything else is optional.</p>
-        <div class="form-error-box" id="eventFormError"></div>
-        <form id="eventForm"><input type="hidden" id="eventId">
-            <div class="form-group"><label for="eventTitle">Title</label><input type="text" id="eventTitle" required></div>
-            <div class="form-row"><div class="form-group"><label for="eventCategory">Category / type</label><input type="text" id="eventCategory" placeholder="WORKSHOP, HACKATHON, ON-SITE..."></div><div class="form-group"><label for="eventTopic">Topic</label><input type="text" id="eventTopic"></div></div>
-            <div class="form-group"><label for="eventDescription">Description</label><textarea id="eventDescription"></textarea></div>
-            <div class="form-row"><div class="form-group"><label for="eventDate">Date</label><input type="date" id="eventDate"></div><div class="form-group"><label for="eventTime">Time</label><input type="text" id="eventTime" placeholder="e.g. 6:00 PM or TBA"></div></div>
-            <div class="form-group"><label for="eventLocation">Location</label><input type="text" id="eventLocation" placeholder="e.g. Main Campus, Room 204, or Online"></div>
-            <div class="form-row"><div class="form-group"><label for="eventCapacity">Capacity</label><input type="number" id="eventCapacity" min="0"></div><div class="form-group"><label for="eventOrganizer">Organizer</label><input type="text" id="eventOrganizer"></div></div>
-            <div class="form-group"><label for="eventImageUrl">Image URL</label><input type="url" id="eventImageUrl" placeholder="https://..."><p class="form-hint">Paste a hosted image link. (Direct upload can be added later via Supabase Storage.)</p></div>
-            <div class="form-group"><label for="eventRegistrationUrl">Registration link</label><input type="url" id="eventRegistrationUrl" placeholder="https://..."></div>
-            <div class="form-group"><label for="eventTags">Tags</label><input type="text" id="eventTags" placeholder="comma, separated, tags"></div>
-            <div class="form-row"><div class="form-group"><label for="eventStatus">Status</label><select id="eventStatus"><option value="upcoming">Upcoming</option><option value="past">Past</option></select></div><div class="form-group" style="display:flex; align-items:flex-end;"><div class="checkbox-row"><input type="checkbox" id="eventPublished"><label for="eventPublished">Published (visible on the public site)</label></div></div></div>
-            <div class="modal-actions"><button type="button" class="btn-outline" onclick="U.closeModal('eventModal')">Cancel</button><button type="submit" class="btn-solid" id="eventSubmitBtn">Save Event</button></div>
-        </form>
-    </div></div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="js/supabaseClient.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Theme Transition Script -->
+    <script src="js/theme.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/themeAdmin.js"></script>
 </body>
