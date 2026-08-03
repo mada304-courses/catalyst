@@ -27,21 +27,16 @@ create table if not exists public.profiles (
   created_at  timestamptz not null default now()
 );
 
--- Make older installations converge on the current columns/defaults.
 alter table public.profiles add column if not exists full_name text not null default '';
 alter table public.profiles add column if not exists email text not null default '';
 alter table public.profiles add column if not exists role text not null default 'user';
 alter table public.profiles add column if not exists created_at timestamptz not null default now();
 
--- The original schema used this constraint name. Replacing it is safe and
--- makes reruns deterministic for installations created by the original file.
 alter table public.profiles drop constraint if exists profiles_role_check;
 alter table public.profiles add constraint profiles_role_check check (role in ('user', 'admin'));
 
 alter table public.profiles enable row level security;
 
--- Helper used by every admin-only policy. SECURITY DEFINER prevents the
--- profiles policy from recursively querying profiles through RLS.
 create or replace function public.is_admin()
 returns boolean
 language sql
@@ -50,22 +45,19 @@ security definer
 set search_path = public, pg_temp
 as $$
   select exists (
-    select 1
-    from public.profiles
-    where id = auth.uid()
-      and role = 'admin'
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
   );
 $$;
 
 revoke all on function public.is_admin() from public;
 grant execute on function public.is_admin() to anon, authenticated;
 
--- Recreate policies so this file is safe to run repeatedly.
 drop policy if exists "profiles_select_own" on public.profiles;
 drop policy if exists "profiles_select_admin" on public.profiles;
 drop policy if exists "profiles_update_own" on public.profiles;
 
-a create policy "profiles_select_own"
+create policy "profiles_select_own"
   on public.profiles for select
   using (auth.uid() = id);
 
@@ -78,8 +70,6 @@ create policy "profiles_update_own"
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
--- Prevent users from promoting themselves through a normal authenticated
--- update. Trusted SQL/service-role operations remain able to change roles.
 create or replace function public.prevent_role_self_escalation()
 returns trigger
 language plpgsql
@@ -101,7 +91,6 @@ create trigger trg_prevent_role_self_escalation
   before update on public.profiles
   for each row execute function public.prevent_role_self_escalation();
 
--- Auto-create a normal-user profile after signup.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -132,24 +121,24 @@ create trigger trg_handle_new_user
 -- 2. EVENTS
 -- ============================================================================
 create table if not exists public.events (
-  id                uuid primary key default gen_random_uuid(),
-  title             text not null,
-  category          text not null default 'WORKSHOP',
-  topic             text not null default '',
-  description       text not null default '',
-  event_date        date,
-  event_time        text default 'TBA',
-  location          text default 'TBA',
-  image_url         text,
-  registration_url  text,
-  capacity          integer,
-  organizer         text default '',
-  tags              text[] not null default '{}',
-  status            text not null default 'upcoming',
-  published         boolean not null default false,
-  created_by        uuid references public.profiles(id) on delete set null,
-  created_at        timestamptz not null default now(),
-  updated_at        timestamptz not null default now()
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  category text not null default 'WORKSHOP',
+  topic text not null default '',
+  description text not null default '',
+  event_date date,
+  event_time text default 'TBA',
+  location text default 'TBA',
+  image_url text,
+  registration_url text,
+  capacity integer,
+  organizer text default '',
+  tags text[] not null default '{}',
+  status text not null default 'upcoming',
+  published boolean not null default false,
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 alter table public.events add column if not exists title text not null default '';
@@ -172,9 +161,7 @@ alter table public.events add column if not exists updated_at timestamptz not nu
 
 alter table public.events drop constraint if exists events_status_check;
 alter table public.events add constraint events_status_check check (status in ('upcoming', 'past'));
-
 create index if not exists idx_events_published_status on public.events (published, status, event_date);
-
 alter table public.events enable row level security;
 
 drop policy if exists "events_select_published" on public.events;
@@ -183,74 +170,41 @@ drop policy if exists "events_insert_admin" on public.events;
 drop policy if exists "events_update_admin" on public.events;
 drop policy if exists "events_delete_admin" on public.events;
 
-create policy "events_select_published"
-  on public.events for select
-  using (published = true);
-
-create policy "events_select_admin"
-  on public.events for select
-  using (public.is_admin());
-
-create policy "events_insert_admin"
-  on public.events for insert
-  with check (public.is_admin());
-
-create policy "events_update_admin"
-  on public.events for update
-  using (public.is_admin())
-  with check (public.is_admin());
-
-create policy "events_delete_admin"
-  on public.events for delete
-  using (public.is_admin());
+create policy "events_select_published" on public.events for select using (published = true);
+create policy "events_select_admin" on public.events for select using (public.is_admin());
+create policy "events_insert_admin" on public.events for insert with check (public.is_admin());
+create policy "events_update_admin" on public.events for update using (public.is_admin()) with check (public.is_admin());
+create policy "events_delete_admin" on public.events for delete using (public.is_admin());
 
 create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
+returns trigger language plpgsql as $$
+begin new.updated_at = now(); return new; end;
 $$;
 
 drop trigger if exists trg_events_updated_at on public.events;
-create trigger trg_events_updated_at
-  before update on public.events
-  for each row execute function public.set_updated_at();
+create trigger trg_events_updated_at before update on public.events for each row execute function public.set_updated_at();
 
 -- ============================================================================
 -- 3. SITE SETTINGS / CMS
 -- ============================================================================
 create table if not exists public.site_settings (
-  key         text primary key,
-  value       jsonb not null,
-  updated_at  timestamptz not null default now()
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz not null default now()
 );
 
 alter table public.site_settings add column if not exists value jsonb not null default '{}'::jsonb;
 alter table public.site_settings add column if not exists updated_at timestamptz not null default now();
-
 alter table public.site_settings enable row level security;
 
 drop policy if exists "site_settings_select_public" on public.site_settings;
 drop policy if exists "site_settings_write_admin" on public.site_settings;
-
-create policy "site_settings_select_public"
-  on public.site_settings for select
-  using (true);
-
-create policy "site_settings_write_admin"
-  on public.site_settings for all
-  using (public.is_admin())
-  with check (public.is_admin());
+create policy "site_settings_select_public" on public.site_settings for select using (true);
+create policy "site_settings_write_admin" on public.site_settings for all using (public.is_admin()) with check (public.is_admin());
 
 drop trigger if exists trg_site_settings_updated_at on public.site_settings;
-create trigger trg_site_settings_updated_at
-  before update on public.site_settings
-  for each row execute function public.set_updated_at();
+create trigger trg_site_settings_updated_at before update on public.site_settings for each row execute function public.set_updated_at();
 
--- Default CMS content. Existing values are preserved on rerun.
 insert into public.site_settings (key, value) values
   ('banner', '{"enabled": true, "text": "⚠️ SYSTEM STATUS: SITE UNDER CONSTRUCTION // Launching Soon"}'),
   ('home', '{"heading": "Building The Future", "intro": "We organize workshops, hackathons, and real-world tech events. Our main portal is currently being upgraded to bring you a better experience.", "cta_heading": "Stay Updated", "cta_text": "Get notified when we launch our next hackathon:"}'),
@@ -260,7 +214,6 @@ insert into public.site_settings (key, value) values
   ('theme', '{"mode": "monochrome", "allow_user_toggle": true, "colors": {"dark": {"bg": "#000000", "text": "#ffffff", "border": "#333333", "accent": "#ffffff", "hover": "#222222", "card": "#111111"}, "light": {"bg": "#ffffff", "text": "#000000", "border": "#e0e0e0", "accent": "#000000", "hover": "#f0f0f0", "card": "#f9f9f9"}}}')
 on conflict (key) do nothing;
 
--- Seed the original placeholder events only if the table is empty.
 insert into public.events (title, category, topic, description, event_date, event_time, location, status, published)
 select * from (values
   ('Web3 & AI Fundamentals', 'WORKSHOP', 'Web3 & AI Fundamentals', 'A hands-on introduction to building with Web3 and AI.', null::date, 'TBA', 'TBA', 'upcoming', false),
@@ -269,15 +222,6 @@ select * from (values
 ) as seed(title, category, topic, description, event_date, event_time, location, status, published)
 where not exists (select 1 from public.events);
 
--- ============================================================================
--- 4. ADMIN SETUP
--- ============================================================================
--- Sign up normally first, then run this in the Supabase SQL Editor:
---
---   update public.profiles
---   set role = 'admin'
---   where email = 'you@example.com';
---
--- Normal users cannot promote themselves through the API. The theme and all
--- other CMS writes are also protected by the admin-only RLS policy above.
+-- Admin promotion (run separately after signup):
+-- update public.profiles set role = 'admin' where email = 'you@example.com';
 -- ============================================================================
