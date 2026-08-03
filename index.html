@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalyst</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="brand"><div class="logo">&lt;/&gt;</div><div class="team-name">Catalyst</div></div>
+            <div class="header-controls">
+                <div class="search-bar"><input type="text" id="searchInput" placeholder="Search events..." onkeyup="handleSearch()"></div>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">MODE</button>
+                <div id="authArea"></div>
+            </div>
+        </div>
+        <nav>
+            <button class="nav-tab active" onclick="openTab(event, 'home')">Home</button>
+            <button class="nav-tab" onclick="openTab(event, 'events')">Events</button>
+            <button class="nav-tab" onclick="openTab(event, 'about')">About Us</button>
+            <button class="nav-tab" onclick="openTab(event, 'more')">More</button>
+            <a id="adminNavTab" class="nav-tab nav-tab-admin" href="admin.html" style="display:none; text-decoration:none;">Admin Dashboard</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="construction-banner" id="constructionBanner">⚠️ SYSTEM STATUS: SITE UNDER CONSTRUCTION // Launching Soon</div>
+        <div id="home" class="tab-content active">
+            <h1 id="homeHeading">Building The Future</h1>
+            <p id="homeIntro">We organize workshops, hackathons, and real-world tech events. Our main portal is currently being upgraded to bring you a better experience.</p>
+            <h3 id="homeCtaHeading">Stay Updated</h3><p id="homeCtaText">Get notified when we launch our next hackathon:</p>
+            <form class="subscribe-form" onsubmit="handleSubscribe(event)"><input type="email" placeholder="Enter your email address" required><button type="submit">JOIN</button></form>
+        </div>
+        <div id="events" class="tab-content"><h1>Upcoming Events</h1><p>Here's what we've got lined up:</p><div class="grid" id="eventsGrid"><div class="loading-state">Loading events…</div></div></div>
+        <div id="about" class="tab-content"><h1 id="aboutHeading">About Our Team</h1><p id="aboutParagraph1">We are a collective of organizers, developers, and creators passionate about hosting high-impact technology events.</p><p id="aboutParagraph2">Our mission is to create hands-on learning experiences through competitive hackathons and collaborative workshops.</p></div>
+        <div id="more" class="tab-content"><h1>Resources & Contact</h1><div class="grid"><div class="card"><h3>Sponsorships</h3><p id="moreSponsorship">Want to partner with us for upcoming events? Reach out via email.</p></div><div class="card"><h3>Volunteer</h3><p id="moreVolunteer">Join our core team and help organize our next big hackathon.</p></div></div></div>
+    </main>
+    <footer><p id="footerText">&copy; 2026 DEV_LABS. All rights reserved. | Built in Monochrome.</p></footer>
+
+    <div class="modal-overlay" id="authModal"><div class="modal-box"><button type="button" class="modal-close" onclick="U.closeModal('authModal')">&times;</button>
+        <div id="authPanel-login"><h2>Log In</h2><p class="modal-subtitle">Welcome back to Catalyst.</p><div class="form-error-box" id="authError-login"></div><form onsubmit="handleLoginSubmit(event)"><div class="form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" required autocomplete="email"></div><div class="form-group"><label for="loginPassword">Password</label><input type="password" id="loginPassword" required autocomplete="current-password"></div><div class="modal-actions" style="justify-content:space-between;align-items:center;"><button type="button" class="btn-link" onclick="showAuthPanel('forgot')">Forgot password?</button><button type="submit" class="btn-solid" id="loginSubmitBtn">Log In</button></div></form><p class="modal-footer-link">No account yet? <a href="#" onclick="showAuthPanel('signup');return false;">Sign up</a></p></div>
+        <div id="authPanel-signup" style="display:none;"><h2>Create Account</h2><p class="modal-subtitle">Join Catalyst to keep track of events.</p><div class="form-error-box" id="authError-signup"></div><div class="form-success-box" id="authSuccess-signup"></div><form onsubmit="handleSignupSubmit(event)"><div class="form-group"><label for="signupName">Full name</label><input type="text" id="signupName" required autocomplete="name"></div><div class="form-group"><label for="signupEmail">Email</label><input type="email" id="signupEmail" required autocomplete="email"></div><div class="form-row"><div class="form-group"><label for="signupPassword">Password</label><input type="password" id="signupPassword" required autocomplete="new-password"></div><div class="form-group"><label for="signupConfirm">Confirm password</label><input type="password" id="signupConfirm" required autocomplete="new-password"></div></div><p class="form-hint">Minimum 8 characters. New accounts are regular users — administrator access is granted separately.</p><div class="modal-actions"><button type="submit" class="btn-solid" id="signupSubmitBtn">Create Account</button></div></form><p class="modal-footer-link">Already have an account? <a href="#" onclick="showAuthPanel('login');return false;">Log in</a></p></div>
+        <div id="authPanel-forgot" style="display:none;"><h2>Reset Password</h2><p class="modal-subtitle">We'll email you a link to set a new password.</p><div class="form-error-box" id="authError-forgot"></div><div class="form-success-box" id="authSuccess-forgot"></div><form onsubmit="handleForgotSubmit(event)"><div class="form-group"><label for="forgotEmail">Email</label><input type="email" id="forgotEmail" required autocomplete="email"></div><div class="modal-actions"><button type="submit" class="btn-solid" id="forgotSubmitBtn">Send Reset Link</button></div></form><p class="modal-footer-link"><a href="#" onclick="showAuthPanel('login');return false;">Back to log in</a></p></div>
+    </div></div>
+    <div class="modal-overlay" id="resetPasswordModal"><div class="modal-box"><h2>Set New Password</h2><p class="modal-subtitle">Choose a new password for your account.</p><div class="form-error-box" id="resetError"></div><form onsubmit="handleResetPasswordSubmit(event)"><div class="form-group"><label for="resetPassword1">New password</label><input type="password" id="resetPassword1" required autocomplete="new-password"></div><div class="form-group"><label for="resetPassword2">Confirm new password</label><input type="password" id="resetPassword2" required autocomplete="new-password"></div><div class="modal-actions"><button type="submit" class="btn-solid" id="resetSubmitBtn">Save Password</button></div></form></div></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>
