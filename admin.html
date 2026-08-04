@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalyst — Admin Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Shown while access is being checked, or if the visitor is not an admin.
+         The dashboard markup below is never populated with real data unless
+         guardAdminAccess() in admin.js confirms an admin session — and even
+         then, every read/write is independently checked by Supabase RLS. -->
+    <div class="admin-guard-screen" id="adminGuardScreen">
+        <div class="guard-box">
+            <h1>Checking Access…</h1>
+            <p>Please wait while we verify your account.</p>
+        </div>
+    </div>
+
+    <div class="admin-shell" id="adminShell" style="display:none;">
+        <aside class="admin-sidebar">
+            <div class="brand">
+                <div class="logo">&lt;/&gt;</div>
+                <div class="team-name" style="font-size:1rem;">Catalyst</div>
+            </div>
+
+            <nav class="admin-nav">
+                <button class="admin-nav-item active" data-page="overview" onclick="adminGoTo('overview')">Overview</button>
+                <button class="admin-nav-item" data-page="events" onclick="adminGoTo('events')">Events</button>
+                <button class="admin-nav-item" data-page="users" onclick="adminGoTo('users')">Users</button>
+                <button class="admin-nav-item" data-page="content" onclick="adminGoTo('content')">Site Content</button>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="user-chip" style="margin-bottom:10px;">
+                    <span class="avatar">A</span>
+                    <span id="adminUserName">—</span>
+                    <span class="badge badge-admin">Admin</span>
+                </div>
+                <a href="index.html" class="btn-link" style="display:block; margin-bottom:10px;">View public site</a>
+                <button type="button" class="btn-outline" onclick="handleAdminLogout()" style="width:100%;">Log out</button>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+
+            <!-- ============================== OVERVIEW ============================== -->
+            <section class="admin-page active" id="admin-overview">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Dashboard Overview</h1>
+                        <p class="admin-page-subtitle">A snapshot of Catalyst's events and users.</p>
+                    </div>
+                </div>
+                <div class="stat-grid" id="statGrid">
+                    <div class="loading-state">Loading stats…</div>
+                </div>
+            </section>
+
+            <!-- ============================== EVENTS ============================== -->
+            <section class="admin-page" id="admin-events">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Event Management</h1>
+                        <p class="admin-page-subtitle">Create, edit, publish, and remove Catalyst events.</p>
+                    </div>
+                    <button type="button" class="btn-solid" onclick="openEventForm(null)">+ Add Event</button>
+                </div>
+
+                <div class="toolbar">
+                    <div class="search-bar">
+                        <input type="text" id="adminEventSearch" placeholder="Search by title, category, location...">
+                    </div>
+                </div>
+
+                <div id="eventsTableWrap">
+                    <div class="loading-state">Loading events…</div>
+                </div>
+            </section>
+
+            <!-- ============================== USERS ============================== -->
+            <section class="admin-page" id="admin-users">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Registered Accounts</h1>
+                        <p class="admin-page-subtitle">
+                            Everyone who has signed up. The two monochrome themes stay free for anyone
+                            to toggle from the header — the four special themes below are only visible
+                            to an account once you assign one here.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- NEW GLOBAL THEME SECTION -->
+                <div class="global-theme-panel" style="margin-bottom: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-surface);">
+                    <h3>Global Theme Settings</h3>
+                    <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">Update the theme for all standard users. (Does not affect users manually assigned a custom theme).</p>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="global-theme-select" style="max-width: 300px; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+                            <option value="">Default Monochrome</option>
+                            <option value="gamedev">Retro Arcade 🕹️</option>
+                            <option value="robotic">Embedded Robotics 🤖</option>
+                            <option value="biological">Biological Lab 🧬</option>
+                            <option value="space">Deep Space 🚀</option>
+                        </select>
+                        <button type="button" class="btn-solid" id="btn-apply-global-theme" onclick="applyGlobalTheme()">Apply to All Standard Users</button>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <div class="search-bar">
+                        <input type="text" id="adminUserSearch" placeholder="Search by name or email...">
+                    </div>
+                </div>
+
+                <div id="usersTableWrap">
+                    <div class="loading-state">Loading accounts…</div>
+                </div>
+            </section>
+
+            <!-- ============================== SITE CONTENT (CMS) ============================== -->
+            <section class="admin-page" id="admin-content">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Site Content</h1>
+                        <p class="admin-page-subtitle">Edit the copy shown on the public site. Changes go live immediately.</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h3>Construction Banner</h3>
+                    <div class="checkbox-row" style="margin-bottom:12px;">
+                        <input type="checkbox" id="cmsBannerEnabled">
+                        <label for="cmsBannerEnabled">Show banner on the site</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsBannerText">Banner text</label>
+                        <input type="text" id="cmsBannerText">
+                    </div>
+                    <button type="button" class="btn-outline" id="cmsBannerSaveBtn" onclick="saveBannerContent()">Save Banner</button>
+                </div>
+
+                <div class="content-section">
+                    <h3>Home Page</h3>
+                    <div class="form-group">
+                        <label for="cmsHomeHeading">Heading</label>
+                        <input type="text" id="cmsHomeHeading">
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsHomeIntro">Intro paragraph</label>
+                        <textarea id="cmsHomeIntro"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsHomeCtaHeading">Newsletter heading</label>
+                        <input type="text" id="cmsHomeCtaHeading">
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsHomeCtaText">Newsletter text</label>
+                        <input type="text" id="cmsHomeCtaText">
+                    </div>
+                    <button type="button" class="btn-outline" id="cmsHomeSaveBtn" onclick="saveHomeContent()">Save Home</button>
+                </div>
+
+                <div class="content-section">
+                    <h3>About Us</h3>
+                    <div class="form-group">
+                        <label for="cmsAboutHeading">Heading</label>
+                        <input type="text" id="cmsAboutHeading">
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsAboutParagraph1">Paragraph 1</label>
+                        <textarea id="cmsAboutParagraph1"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsAboutParagraph2">Paragraph 2</label>
+                        <textarea id="cmsAboutParagraph2"></textarea>
+                    </div>
+                    <button type="button" class="btn-outline" id="cmsAboutSaveBtn" onclick="saveAboutContent()">Save About</button>
+                </div>
+
+                <div class="content-section">
+                    <h3>Resources &amp; Contact</h3>
+                    <div class="form-group">
+                        <label for="cmsMoreSponsorship">Sponsorship text</label>
+                        <textarea id="cmsMoreSponsorship"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cmsMoreVolunteer">Volunteer text</label>
+                        <textarea id="cmsMoreVolunteer"></textarea>
+                    </div>
+                    <button type="button" class="btn-outline" id="cmsMoreSaveBtn" onclick="saveMoreContent()">Save Resources</button>
+                </div>
+
+                <div class="content-section">
+                    <h3>Footer</h3>
+                    <div class="form-group">
+                        <label for="cmsFooterText">Footer text</label>
+                        <input type="text" id="cmsFooterText">
+                    </div>
+                    <button type="button" class="btn-outline" id="cmsFooterSaveBtn" onclick="saveFooterContent()">Save Footer</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ============================== ADD / EDIT EVENT MODAL ============================== -->
+    <div class="modal-overlay" id="eventModal">
+        <div class="modal-box modal-box-lg">
+            <button type="button" class="modal-close" onclick="U.closeModal('eventModal')">&times;</button>
+            <h2 id="eventFormTitle">Add Event</h2>
+            <p class="modal-subtitle">Fields marked with a title are required — everything else is optional.</p>
+            <div class="form-error-box" id="eventFormError"></div>
+
+            <form id="eventForm">
+                <input type="hidden" id="eventId">
+
+                <div class="form-group">
+                    <label for="eventTitle">Title</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventCategory">Category / type</label>
+                        <input type="text" id="eventCategory" placeholder="WORKSHOP, HACKATHON, ON-SITE...">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTopic">Topic</label>
+                        <input type="text" id="eventTopic">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Time</label>
+                        <input type="text" id="eventTime" placeholder="e.g. 6:00 PM or TBA">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" placeholder="e.g. Main Campus, Room 204, or Online">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventCapacity">Capacity</label>
+                        <input type="number" id="eventCapacity" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventOrganizer">Organizer</label>
+                        <input type="text" id="eventOrganizer">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventImageUrl">Image URL</label>
+                    <input type="url" id="eventImageUrl" placeholder="https://...">
+                    <p class="form-hint">Paste a hosted image link. (Direct upload can be added later via Supabase Storage.)</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventRegistrationUrl">Registration link</label>
+                    <input type="url" id="eventRegistrationUrl" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label for="eventTags">Tags</label>
+                    <input type="text" id="eventTags" placeholder="comma, separated, tags">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventStatus">Status</label>
+                        <select id="eventStatus">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="past">Past</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="eventPublished">
+                            <label for="eventPublished">Published (visible on the public site)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-outline" onclick="U.closeModal('eventModal')">Cancel</button>
+                    <button type="submit" class="btn-solid" id="eventSubmitBtn">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
