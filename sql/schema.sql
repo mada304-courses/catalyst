@@ -185,6 +185,50 @@ drop trigger if exists trg_events_updated_at on public.events;
 create trigger trg_events_updated_at before update on public.events for each row execute function public.set_updated_at();
 
 -- ============================================================================
+-- 2b. TEAM MEMBERS (About section — public site shows published members)
+-- ============================================================================
+create table if not exists public.team_members (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  role text not null default '',
+  bio text not null default '',
+  image_url text,
+  sort_order integer not null default 0,
+  published boolean not null default true,
+  created_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.team_members add column if not exists name text not null default '';
+alter table public.team_members add column if not exists role text not null default '';
+alter table public.team_members add column if not exists bio text not null default '';
+alter table public.team_members add column if not exists image_url text;
+alter table public.team_members add column if not exists sort_order integer not null default 0;
+alter table public.team_members add column if not exists published boolean not null default true;
+alter table public.team_members add column if not exists created_by uuid references public.profiles(id) on delete set null;
+alter table public.team_members add column if not exists created_at timestamptz not null default now();
+alter table public.team_members add column if not exists updated_at timestamptz not null default now();
+
+create index if not exists idx_team_members_published_sort on public.team_members (published, sort_order);
+alter table public.team_members enable row level security;
+
+drop policy if exists "team_members_select_published" on public.team_members;
+drop policy if exists "team_members_select_admin" on public.team_members;
+drop policy if exists "team_members_insert_admin" on public.team_members;
+drop policy if exists "team_members_update_admin" on public.team_members;
+drop policy if exists "team_members_delete_admin" on public.team_members;
+
+create policy "team_members_select_published" on public.team_members for select using (published = true);
+create policy "team_members_select_admin" on public.team_members for select using (public.is_admin());
+create policy "team_members_insert_admin" on public.team_members for insert with check (public.is_admin());
+create policy "team_members_update_admin" on public.team_members for update using (public.is_admin()) with check (public.is_admin());
+create policy "team_members_delete_admin" on public.team_members for delete using (public.is_admin());
+
+drop trigger if exists trg_team_members_updated_at on public.team_members;
+create trigger trg_team_members_updated_at before update on public.team_members for each row execute function public.set_updated_at();
+
+-- ============================================================================
 -- 3. SITE SETTINGS / CMS
 -- ============================================================================
 create table if not exists public.site_settings (
