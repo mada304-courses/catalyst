@@ -128,6 +128,52 @@ async function loadPublicEvents() {
     setTimeout(() => U.initScrollReveals(), 50);
 }
 
+/* ============================== Team (public) ============================== */
+
+function memberCardHtml(m) {
+    const photo = m.image_url
+        ? `<img src="${U.escapeHtml(m.image_url)}" alt="${U.escapeHtml(m.name)}" style="width:72px; height:72px; border-radius:50%; object-fit:cover; margin-bottom:14px; border:2px solid var(--accent-color);">`
+        : `<div style="width:72px; height:72px; border-radius:50%; margin-bottom:14px; background:var(--accent-color); color:var(--bg-color); display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700;">${U.escapeHtml((m.name || '?').trim().charAt(0).toUpperCase())}</div>`;
+    const role = m.role ? `<p style="margin-bottom:8px; color:var(--accent-color); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">${U.escapeHtml(m.role)}</p>` : '';
+    const bio = m.bio ? `<p style="opacity:0.85;">${U.escapeHtml(m.bio)}</p>` : '';
+
+    return `
+      <div class="card reveal" style="align-items:center; text-align:center;">
+        ${photo}
+        <h3 style="border:none; margin-bottom:2px; justify-content:center;">${U.escapeHtml(m.name)}</h3>
+        ${role}
+        ${bio}
+      </div>`;
+}
+
+async function loadTeamMembers() {
+    const grid = document.getElementById('teamGrid');
+    if (!grid) return;
+    grid.innerHTML = `<div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin"></i> Loading team…</div>`;
+
+    const { data, error } = await window.CatalystDB
+        .from('team_members')
+        .select('*')
+        .eq('published', true)
+        .order('sort_order', { ascending: true });
+
+    if (error) {
+        console.error('[Catalyst] DB Error:', error.message);
+        grid.innerHTML = `<div class="error-state reveal"><i class="ph ph-warning"></i> Error loading team roster.</div>`;
+        return;
+    }
+
+    const members = data || [];
+
+    if (members.length === 0) {
+        grid.innerHTML = `<div class="empty-state reveal"><i class="ph ph-identification-badge"></i> Team information not available yet.</div>`;
+        return;
+    }
+
+    grid.innerHTML = members.map(memberCardHtml).join('');
+    setTimeout(() => U.initScrollReveals(), 50);
+}
+
 async function loadSiteContent() {
     const { data, error } = await window.CatalystDB.from('site_settings').select('key, value');
     if (error) return;
@@ -397,6 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initKonamiEgg();
     U.initInteractions();
     loadPublicEvents();
+    loadTeamMembers();
     loadSiteContent();
 
     window.CatalystAuth.onChange((state) => {
