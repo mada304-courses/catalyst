@@ -32,6 +32,7 @@
             <nav class="admin-nav">
                 <button class="admin-nav-item active" data-page="overview" onclick="adminGoTo('overview')"><i class="ph ph-squares-four"></i> Overview</button>
                 <button class="admin-nav-item" data-page="events" onclick="adminGoTo('events')"><i class="ph ph-calendar-blank"></i> Events</button>
+                <button class="admin-nav-item" data-page="team" onclick="adminGoTo('team')"><i class="ph ph-identification-badge"></i> Team</button>
                 <button class="admin-nav-item" data-page="users" onclick="adminGoTo('users')"><i class="ph ph-users"></i> Users</button>
                 <button class="admin-nav-item" data-page="content" onclick="adminGoTo('content')"><i class="ph ph-browser"></i> Site Content</button>
             </nav>
@@ -80,6 +81,28 @@
 
                 <div id="eventsTableWrap" class="glass-panel" style="padding:0;">
                     <div class="loading-state"><i class="ph ph-spinner-gap ph-spin"></i> Loading records…</div>
+                </div>
+            </section>
+
+            <!-- ============================== TEAM ============================== -->
+            <section class="admin-page reveal" id="admin-team">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Team Roster</h1>
+                        <p class="admin-page-subtitle">Manage the crew shown in the public About section.</p>
+                    </div>
+                    <button type="button" class="btn-glow" onclick="openMemberForm(null)"><i class="ph ph-plus"></i> Add Team Member</button>
+                </div>
+
+                <div class="toolbar glass-panel" style="padding: 10px 15px; margin-bottom: 20px;">
+                    <div class="search-bar" style="border:none; padding:0;">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" id="adminTeamSearch" placeholder="Query roster..." style="border:none;">
+                    </div>
+                </div>
+
+                <div id="teamTableWrap" class="glass-panel" style="padding:0;">
+                    <div class="loading-state"><i class="ph ph-spinner-gap ph-spin"></i> Loading roster…</div>
                 </div>
             </section>
 
@@ -297,6 +320,58 @@
                 <div class="modal-actions">
                     <button type="button" class="btn-outline" onclick="U.closeModal('eventModal')">Abort</button>
                     <button type="submit" class="btn-glow" id="eventSubmitBtn">Execute Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================== TEAM MEMBER MODAL ============================== -->
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal-box glass-panel">
+            <button type="button" class="modal-close" onclick="U.closeModal('memberModal')"><i class="ph ph-x"></i></button>
+            <h2 id="memberFormTitle"><i class="ph ph-plus-circle"></i> Add Team Member</h2>
+            <p class="modal-subtitle">Provide a name, role, short bio, and an optional photo for the About section.</p>
+            <div class="form-error-box" id="memberFormError"></div>
+
+            <form id="memberForm">
+                <input type="hidden" id="memberId">
+
+                <div class="form-group">
+                    <label for="memberName">Name</label>
+                    <input type="text" id="memberName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="memberRole">Role</label>
+                    <input type="text" id="memberRole" placeholder="e.g. Lead Organizer">
+                </div>
+
+                <div class="form-group">
+                    <label for="memberBio">Bio</label>
+                    <textarea id="memberBio"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="memberImageUrl">Photo URL</label>
+                    <input type="url" id="memberImageUrl" placeholder="https://...">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="memberSortOrder">Display Order</label>
+                        <input type="number" id="memberSortOrder" value="0">
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <div class="checkbox-row" style="margin-bottom:10px;">
+                            <input type="checkbox" id="memberPublished" checked>
+                            <label for="memberPublished">Show on public site</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-outline" onclick="U.closeModal('memberModal')">Cancel</button>
+                    <button type="submit" class="btn-glow" id="memberSubmitBtn">Save Member</button>
                 </div>
             </form>
         </div>
