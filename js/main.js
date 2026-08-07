@@ -130,10 +130,13 @@ async function loadPublicEvents() {
 
 /* ============================== Team (public) ============================== */
 
-function memberCardHtml(m) {
-    const photo = m.image_url
-        ? `<img src="${U.escapeHtml(m.image_url)}" alt="${U.escapeHtml(m.name)}" style="width:72px; height:72px; border-radius:50%; object-fit:cover; margin-bottom:14px; border:2px solid var(--accent-color);">`
-        : `<div style="width:72px; height:72px; border-radius:50%; margin-bottom:14px; background:var(--accent-color); color:var(--bg-color); display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:700;">${U.escapeHtml((m.name || '?').trim().charAt(0).toUpperCase())}</div>`;
+// Used for members with no image_url in the database — a neutral silhouette
+// so the grid never shows an empty card (this is NOT a real member's photo).
+const TEAM_PLACEHOLDER_PHOTO = 'img/team-placeholder.svg';
+
+function memberCardHtml(m, index) {
+    const src = m.image_url || TEAM_PLACEHOLDER_PHOTO;
+    const photo = `<div class="member-photo-wrap"><img src="${U.escapeHtml(src)}" alt="${U.escapeHtml(m.name)}" loading="lazy"></div>`;
     const role = m.role ? `<p style="margin-bottom:8px; color:var(--accent-color); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">${U.escapeHtml(m.role)}</p>` : '';
     const bio = m.bio ? `<p style="opacity:0.85;">${U.escapeHtml(m.bio)}</p>` : '';
 
@@ -170,7 +173,7 @@ async function loadTeamMembers() {
         return;
     }
 
-    grid.innerHTML = members.map(memberCardHtml).join('');
+    grid.innerHTML = members.map((m, i) => memberCardHtml(m, i)).join('');
     setTimeout(() => U.initScrollReveals(), 50);
 }
 
