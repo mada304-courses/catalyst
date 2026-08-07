@@ -928,6 +928,27 @@
    .card p strong { color: var(--text-color); font-weight: 600; }
 
    .event-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 16px; }
+
+   /* Team member photo — fills the top of the card edge-to-edge, cropped
+      to a consistent portrait ratio (real photo or fallback alike). */
+   .member-photo-wrap {
+       width: calc(100% + 48px);
+       height: 280px;
+       margin: -24px -24px 18px;
+       background: var(--surface-color);
+       overflow: hidden;
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       flex-shrink: 0;
+   }
+   .member-photo-wrap img {
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+       object-position: center 30%;
+       display: block;
+   }
    .tag {
        background: rgba(255,255,255,0.05);
        border: 1px solid var(--border-color);
