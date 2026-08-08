@@ -198,8 +198,13 @@ async function loadSiteContent() {
     }
     if (settings.about) {
         setText('aboutHeading', settings.about.heading);
-        setText('aboutParagraph1', settings.about.paragraph1);
-        setText('aboutParagraph2', settings.about.paragraph2);
+        const paragraphs = Array.isArray(settings.about.paragraphs) && settings.about.paragraphs.length
+            ? settings.about.paragraphs
+            : [settings.about.paragraph1, settings.about.paragraph2].filter(Boolean);
+        const wrap = document.getElementById('aboutParagraphs');
+        if (wrap && paragraphs.length) {
+            wrap.innerHTML = paragraphs.map((p) => `<p>${U.escapeHtml(p)}</p>`).join('');
+        }
     }
     if (settings.more) {
         setText('moreSponsorship', settings.more.sponsorship_text);
