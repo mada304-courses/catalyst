@@ -621,8 +621,10 @@ async function loadContentForm() {
     setVal('cmsHomeCtaHeading', settings.home?.cta_heading || '');
     setVal('cmsHomeCtaText', settings.home?.cta_text || '');
     setVal('cmsAboutHeading', settings.about?.heading || '');
-    setVal('cmsAboutParagraph1', settings.about?.paragraph1 || '');
-    setVal('cmsAboutParagraph2', settings.about?.paragraph2 || '');
+    const existingParagraphs = Array.isArray(settings.about?.paragraphs)
+        ? settings.about.paragraphs
+        : [settings.about?.paragraph1, settings.about?.paragraph2].filter(Boolean);
+    renderAboutParagraphs(existingParagraphs.length ? existingParagraphs : ['']);
     setVal('cmsMoreSponsorship', settings.more?.sponsorship_text || '');
     setVal('cmsMoreVolunteer', settings.more?.volunteer_text || '');
     setVal('cmsFooterText', settings.footer?.text || '');
@@ -632,6 +634,24 @@ function setVal(id, value, isCheckbox) {
     const el = document.getElementById(id);
     if (!el) return;
     if (isCheckbox) el.checked = !!value; else el.value = value;
+}
+
+function renderAboutParagraphs(values) {
+    const container = document.getElementById('cmsAboutParagraphs');
+    container.innerHTML = '';
+    values.forEach((v) => addAboutParagraphField(v));
+}
+
+function addAboutParagraphField(value = '') {
+    const container = document.getElementById('cmsAboutParagraphs');
+    const row = document.createElement('div');
+    row.className = 'about-paragraph-row';
+    row.style.cssText = 'display:flex; gap:8px; align-items:flex-start; margin-bottom:10px;';
+    row.innerHTML = `
+        <textarea class="cms-about-paragraph" style="flex:1;">${U.escapeHtml ? U.escapeHtml(value) : value}</textarea>
+        <button type="button" class="btn-danger" style="padding:8px 10px; flex-shrink:0;" onclick="this.parentElement.remove()" title="Remove paragraph"><i class="ph ph-trash"></i></button>
+    `;
+    container.appendChild(row);
 }
 
 async function saveContentSection(key, fieldsMap, buttonId) {
@@ -656,7 +676,26 @@ async function saveContentSection(key, fieldsMap, buttonId) {
 
 function saveBannerContent() { saveContentSection('banner', { enabled: 'cmsBannerEnabled', text: 'cmsBannerText' }, 'cmsBannerSaveBtn'); }
 function saveHomeContent() { saveContentSection('home', { heading: 'cmsHomeHeading', intro: 'cmsHomeIntro', cta_heading: 'cmsHomeCtaHeading', cta_text: 'cmsHomeCtaText' }, 'cmsHomeSaveBtn'); }
-function saveAboutContent() { saveContentSection('about', { heading: 'cmsAboutHeading', paragraph1: 'cmsAboutParagraph1', paragraph2: 'cmsAboutParagraph2' }, 'cmsAboutSaveBtn'); }
+function saveAboutContent() {
+    const paragraphs = Array.from(document.querySelectorAll('#cmsAboutParagraphs .cms-about-paragraph'))
+        .map((el) => el.value.trim())
+        .filter((v) => v.length > 0);
+    saveJsonSection('about', { heading: document.getElementById('cmsAboutHeading').value.trim(), paragraphs }, 'cmsAboutSaveBtn');
+}
+
+async function saveJsonSection(key, value, buttonId) {
+    const btn = document.getElementById(buttonId);
+    U.setLoading(btn, true, 'Committing...');
+    try {
+        const { error } = await window.CatalystDB.from('site_settings').upsert({ key, value });
+        if (error) throw error;
+        U.toast('String update deployed to live environment.', 'success');
+    } catch (err) {
+        U.toast(`Deployment failed: ${err.message}`, 'error');
+    } finally {
+        U.setLoading(btn, false);
+    }
+}
 function saveMoreContent() { saveContentSection('more', { sponsorship_text: 'cmsMoreSponsorship', volunteer_text: 'cmsMoreVolunteer' }, 'cmsMoreSaveBtn'); }
 function saveFooterContent() { saveContentSection('footer', { text: 'cmsFooterText' }, 'cmsFooterSaveBtn'); }
 
