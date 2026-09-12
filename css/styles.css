@@ -165,6 +165,32 @@
        --noise-opacity: 0.03;
    }
 
+   body.theme-ai {
+       /* AI — NEURAL NETWORK */
+       --bg-color: #06070d;
+       --surface-color: rgba(16, 18, 34, 0.75);
+       --text-color: #eef2ff;
+       --text-muted: #9ca3d4;
+       --border-color: rgba(99, 102, 241, 0.4);
+       --accent-color: #a855f7;
+       --accent-glow: rgba(168, 85, 247, 0.3);
+       --danger-color: #f43f5e;
+       --success-color: #22d3ee;
+       --font-heading: 'Space Grotesk', sans-serif;
+       --font-mono: 'JetBrains Mono', monospace;
+       --cursor-color: rgba(168, 85, 247, 0.15);
+       --card-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+       --bg-pattern: linear-gradient(rgba(99, 102, 241, 0.12) 1px, transparent 1px),
+                     linear-gradient(90deg, rgba(168, 85, 247, 0.10) 1px, transparent 1px);
+       --bg-pattern-size: 46px 46px;
+       --bg-pattern-opacity: 0.8;
+
+       --orb-1: rgba(168, 85, 247, 0.22);
+       --orb-2: rgba(56, 189, 248, 0.16);
+       --orb-3: rgba(99, 102, 241, 0.14);
+       --noise-opacity: 0.035;
+   }
+
    * {
        box-sizing: border-box;
        margin: 0;
@@ -1121,6 +1147,18 @@
    .admin-table td { padding: 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
    .admin-table tr:hover td { background: rgba(255,255,255,0.02); }
    body.light-mode .admin-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+   /* Leaderboard */
+   .leaderboard-rank { font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem; width: 60px; }
+   .leaderboard-rank.top-1 { color: #ffd700; }
+   .leaderboard-rank.top-2 { color: #c0c0c0; }
+   .leaderboard-rank.top-3 { color: #cd7f32; }
+   tr.leaderboard-you td { background: var(--accent-glow); font-weight: 600; }
+   .points-pill { display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border-color); font-family: var(--font-heading); font-weight: 600; font-size: 0.85rem; color: var(--accent-color); }
+   .points-editor { display:flex; align-items:center; gap:6px; flex-wrap: wrap; }
+   .points-editor input[type="number"] { width: 80px; padding: 6px 8px; }
+   .lesson-progress-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+   .lesson-watched-badge { color: var(--success-color); font-weight: 600; font-size: 0.85rem; display:inline-flex; align-items:center; gap:6px; }
 
    .pill { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px; }
    .pill-upcoming, .pill-published { border-color: var(--success-color); color: var(--success-color); background: rgba(74, 222, 128, 0.1); }
