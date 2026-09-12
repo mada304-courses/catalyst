@@ -265,11 +265,13 @@ function renderAuthArea(state) {
               <span>${U.escapeHtml(state.profile.full_name || state.profile.email || window.CatalystAuth.getSession()?.user?.email || 'User')}</span>
               ${state.profile.role === 'admin' ? '<span class="badge badge-admin">SYSADM</span>' : ''}
             </div>
+            <span class="points-pill" id="myPointsBadge" style="display:none;"><i class="ph ph-trophy"></i> 0 pts</span>
             <button type="button" class="btn-outline" id="logoutBtn"><i class="ph ph-sign-out"></i></button>
           </div>`;
         document.getElementById('logoutBtn').addEventListener('click', handleLogoutClick);
 
         if (adminNavItem) adminNavItem.style.display = state.profile.role === 'admin' ? 'block' : 'none';
+        refreshMyPoints();
     } else {
         area.innerHTML = `
           <div class="auth-controls">
@@ -477,6 +479,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadPublicEvents();
     loadTeamMembers();
     loadLearningHub();
+    loadLeaderboard();
     loadPartners();
     loadSiteContent();
 
@@ -516,6 +519,20 @@ async function loadLearningHub() {
         .eq('published', true)
         .order('sort_order', { ascending: true });
 
+    // If logged in, find out which lessons/modules this user already has credit for,
+    // so the hub can show "Watched" instead of a button and skip re-awarding points.
+    let watchedLessonIds = new Set();
+    let completedModuleIds = new Set();
+    const myId = window.CatalystAuth?.getSession()?.user?.id;
+    if (myId) {
+        const [{ data: lp }, { data: mp }] = await Promise.all([
+            window.CatalystDB.from('user_lesson_progress').select('lesson_id').eq('user_id', myId),
+            window.CatalystDB.from('user_module_progress').select('module_id').eq('user_id', myId),
+        ]);
+        watchedLessonIds = new Set((lp || []).map((r) => r.lesson_id));
+        completedModuleIds = new Set((mp || []).map((r) => r.module_id));
+    }
+
     // Build the tab bar
     let tabsHtml = `<div class="hub-tabs" role="tablist" style="display:flex; overflow-x:auto; white-space:nowrap; gap:10px; margin-bottom:25px; padding-bottom:10px; -webkit-overflow-scrolling: touch;">`;
     
@@ -538,22 +555,40 @@ async function loadLearningHub() {
             const ytMatch = l.youtube_url ? l.youtube_url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^"&?\/\s]{11})/) : null;
             const ytId = ytMatch ? ytMatch[1] : '';
             const embedHtml = ytId ? `<div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:var(--radius-md); margin-bottom:15px; border:1px solid var(--border-color);"><iframe src="https://www.youtube-nocookie.com/embed/${ytId}" style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" allowfullscreen title="${U.escapeHtml(l.title)}" loading="lazy"></iframe></div>` : '';
-            
+
+            const isWatched = watchedLessonIds.has(l.id);
+            let progressControl;
+            if (isWatched) {
+                progressControl = `<span class="lesson-watched-badge"><i class="ph ph-check-circle"></i> Watched</span>`;
+            } else if (myId) {
+                progressControl = `<button type="button" class="btn-outline" data-lesson-id="${l.id}" data-action="mark-watched"><i class="ph ph-check"></i> Mark as Watched</button>`;
+            } else {
+                progressControl = `<span style="font-size:0.85rem; opacity:0.7;"><i class="ph ph-lock-simple"></i> Log in to earn points</span>`;
+            }
+
             return `
             <div class="card event-card learning-lesson-card" style="margin-bottom: 20px;">
-                <h4 style="margin-bottom:10px;"><i class="ph ph-play-circle"></i> ${U.escapeHtml(l.title)}</h4>
+                <div class="lesson-progress-row">
+                    <h4 style="margin-bottom:0;"><i class="ph ph-play-circle"></i> ${U.escapeHtml(l.title)}</h4>
+                    <span class="points-pill"><i class="ph ph-trophy"></i> ${l.points_value ?? 10} pts</span>
+                </div>
                 ${l.description ? `<p style="opacity:0.9; margin-bottom:15px;">${U.escapeHtml(l.description)}</p>` : ''}
                 ${embedHtml}
                 ${l.catalyst_summary ? `<div style="margin-bottom:10px;"><strong>Summary:</strong> <span style="opacity:0.8">${U.escapeHtml(l.catalyst_summary)}</span></div>` : ''}
-                ${l.catalyst_analysis ? `<div><strong>Catalyst Analysis:</strong> <span style="opacity:0.8">${U.escapeHtml(l.catalyst_analysis)}</span></div>` : ''}
+                ${l.catalyst_analysis ? `<div style="margin-bottom:15px;"><strong>Catalyst Analysis:</strong> <span style="opacity:0.8">${U.escapeHtml(l.catalyst_analysis)}</span></div>` : ''}
+                <div class="lesson-progress-row" style="margin-bottom:0;">${progressControl}</div>
             </div>`;
         }).join('');
 
         if(!lessonsHtml) lessonsHtml = '<p style="opacity:0.7; font-size:0.9rem;"><i class="ph ph-info"></i> No lessons available yet.</p>';
 
+        const modComplete = completedModuleIds.has(mod.id)
+            ? `<span class="lesson-watched-badge" style="margin-left:10px;"><i class="ph ph-trophy"></i> Module Complete (+${mod.points_value ?? 50} pts)</span>`
+            : '';
+
         panelsHtml += `
         <div id="hub-panel-${mod.id}" class="hub-panel glass-panel reveal active" role="tabpanel" style="display:${isActive ? 'block' : 'none'};">
-            <h2 style="margin-bottom: 10px; color:var(--accent-color);"><i class="ph ph-book-open"></i> ${U.escapeHtml(mod.title)}</h2>
+            <h2 style="margin-bottom: 10px; color:var(--accent-color);"><i class="ph ph-book-open"></i> ${U.escapeHtml(mod.title)}${modComplete}</h2>
             ${mod.description ? `<p style="margin-bottom: 20px; opacity: 0.9;">${U.escapeHtml(mod.description)}</p>` : ''}
             <div class="lessons-container">
                 ${lessonsHtml}
@@ -608,6 +643,115 @@ async function loadLearningHub() {
             }
         });
     });
+
+    // Event delegation for "Mark as Watched" buttons (cards are re-rendered often,
+    // so one listener on the container is simpler than re-binding per button).
+    container.querySelectorAll('[data-action="mark-watched"]').forEach((btn) => {
+        btn.addEventListener('click', () => handleMarkLessonWatched(btn.dataset.lessonId, btn));
+    });
+}
+
+async function handleMarkLessonWatched(lessonId, btn) {
+    if (!lessonId) return;
+    U.setLoading(btn, true, 'Saving…');
+    try {
+        const { error } = await window.CatalystDB.rpc('mark_lesson_watched', { p_lesson_id: lessonId });
+        if (error) throw error;
+
+        U.toast('Lesson marked as watched. Points added!', 'success');
+
+        // Refresh the header points pill and public leaderboard, then re-render the
+        // hub so this lesson (and, if it finished the module, the module banner)
+        // shows its updated state.
+        await refreshMyPoints();
+        loadLeaderboard();
+        loadLearningHub();
+    } catch (err) {
+        U.toast(`Couldn't save progress: ${err.message || 'unknown error'}`, 'error');
+        U.setLoading(btn, false);
+    }
+}
+
+async function refreshMyPoints() {
+    const session = window.CatalystAuth?.getSession();
+    const badge = document.getElementById('myPointsBadge');
+    if (!session?.user || !badge) return;
+
+    const { data, error } = await window.CatalystDB
+        .from('profiles')
+        .select('points')
+        .eq('id', session.user.id)
+        .single();
+
+    if (!error && data) {
+        badge.innerHTML = `<i class="ph ph-trophy"></i> ${data.points ?? 0} pts`;
+        badge.style.display = 'inline-flex';
+    }
+}
+
+/* ============================== Leaderboard (public) ============================== */
+
+let allLeaderboardRows = [];
+
+function leaderboardRowHtml(u, rank, myId) {
+    const isMe = myId && u.id === myId;
+    const rankClass = rank <= 3 ? ` top-${rank}` : '';
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+
+    return `
+      <tr class="${isMe ? 'leaderboard-you' : ''}">
+        <td class="leaderboard-rank${rankClass}">${medal}</td>
+        <td style="font-weight:500;"><i class="ph ph-user"></i> ${U.escapeHtml(u.full_name || 'Anonymous Pilot')} ${isMe ? '<span class="badge" style="border-color:var(--accent-color); color:var(--accent-color);">YOU</span>' : ''}</td>
+        <td><i class="ph ph-play-circle"></i> ${u.lessons_watched ?? 0} watched</td>
+        <td><i class="ph ph-books"></i> ${u.modules_completed ?? 0} completed</td>
+        <td><span class="points-pill"><i class="ph ph-trophy"></i> ${u.points ?? 0} pts</span></td>
+      </tr>`;
+}
+
+function renderLeaderboard(rows) {
+    const wrap = document.getElementById('leaderboardWrap');
+    if (!wrap) return;
+
+    if (rows.length === 0) {
+        wrap.innerHTML = `<div class="empty-state reveal"><i class="ph ph-trophy"></i> No entries yet — start watching lessons to earn points.</div>`;
+        return;
+    }
+
+    const myId = window.CatalystAuth?.getSession()?.user?.id;
+
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Rank</th><th>Pilot</th><th>Lessons</th><th>Modules</th><th>Points</th></tr></thead>
+          <tbody>${rows.map((u, i) => leaderboardRowHtml(u, i + 1, myId)).join('')}</tbody>
+        </table>
+      </div>`;
+}
+
+async function loadLeaderboard() {
+    const wrap = document.getElementById('leaderboardWrap');
+    if (!wrap) return;
+    wrap.innerHTML = `<div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin"></i> Loading leaderboard...</div>`;
+
+    const { data, error } = await window.CatalystDB
+        .from('leaderboard')
+        .select('*')
+        .order('points', { ascending: false });
+
+    if (error) {
+        wrap.innerHTML = `<div class="error-state reveal"><i class="ph ph-warning"></i> Error loading leaderboard.</div>`;
+        return;
+    }
+
+    allLeaderboardRows = data || [];
+    renderLeaderboard(allLeaderboardRows);
+}
+
+function filterLeaderboard() {
+    const query = document.getElementById('leaderboardSearchInput').value.toLowerCase();
+    if (!query) return renderLeaderboard(allLeaderboardRows);
+    const filtered = allLeaderboardRows.filter((u) => (u.full_name || '').toLowerCase().includes(query));
+    renderLeaderboard(filtered);
 }
 
 async function loadPartners() {

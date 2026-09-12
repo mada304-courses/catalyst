@@ -1,11 +1,12 @@
 window.CatalystUtils = (function () {
-  const SPECIAL_THEMES = ['gamedev', 'robotic', 'biological', 'space'];
+  const SPECIAL_THEMES = ['gamedev', 'robotic', 'biological', 'space', 'ai'];
   const THEME_LABELS = {
     light: 'Light',
     gamedev: 'Game Development',
     robotic: 'Robotics',
     biological: 'Biological',
-    space: 'Space Exploration'
+    space: 'Space Exploration',
+    ai: 'AI Frontier'
   };
 
   // Sync across tabs

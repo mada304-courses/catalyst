@@ -58,6 +58,7 @@ function adminGoTo(page) {
     if (page === 'learn') loadLearningHubAdmin();
     if (page === 'partners') loadPartnersAdmin();
     if (page === 'team') loadTeamTable();
+    if (page === 'leaderboard') loadLeaderboardTable();
     if (page === 'users') loadUsersTable();
     if (page === 'content') loadContentForm();
     setTimeout(() => U.initScrollReveals(), 50);
@@ -68,20 +69,23 @@ async function loadOverviewStats() {
     grid.innerHTML = `<div class="loading-state"><i class="ph ph-spinner-gap ph-spin"></i> Reading telemetry…</div>`;
 
     const db = window.CatalystDB;
-    const [totalRes, upcomingRes, pastRes, draftRes, usersRes, teamRes] = await Promise.all([
+    const [totalRes, upcomingRes, pastRes, draftRes, usersRes, teamRes, pointsRes] = await Promise.all([
         db.from('events').select('id', { count: 'exact', head: true }),
         db.from('events').select('id', { count: 'exact', head: true }).eq('status', 'upcoming').eq('published', true),
         db.from('events').select('id', { count: 'exact', head: true }).eq('status', 'past'),
         db.from('events').select('id', { count: 'exact', head: true }).eq('published', false),
         db.from('profiles').select('id', { count: 'exact', head: true }),
         db.from('team_members').select('id', { count: 'exact', head: true }),
+        db.from('profiles').select('points'),
     ]);
 
-    const errored = [totalRes, upcomingRes, pastRes, draftRes, usersRes, teamRes].find((r) => r.error);
+    const errored = [totalRes, upcomingRes, pastRes, draftRes, usersRes, teamRes, pointsRes].find((r) => r.error);
     if (errored) {
         grid.innerHTML = `<div class="error-state"><i class="ph ph-warning"></i> Telemetry error: ${U.escapeHtml(errored.error.message)}</div>`;
         return;
     }
+
+    const totalPoints = (pointsRes.data || []).reduce((sum, p) => sum + (p.points || 0), 0);
 
     const stats = [
         ['<i class="ph ph-database"></i> Total Operations', totalRes.count],
@@ -90,6 +94,7 @@ async function loadOverviewStats() {
         ['<i class="ph ph-file-dashed"></i> Offline Drafts', draftRes.count],
         ['<i class="ph ph-users-three"></i> Registered Pilots', usersRes.count],
         ['<i class="ph ph-identification-badge"></i> Team Roster', teamRes.count],
+        ['<i class="ph ph-trophy"></i> Points Awarded', totalPoints],
     ];
 
     grid.innerHTML = stats.map(([label, value]) => `
@@ -478,6 +483,7 @@ const THEME_OPTIONS = [
     { value: 'robotic', label: 'Embedded Robotics 🤖' },
     { value: 'biological', label: 'Biological Lab 🧬' },
     { value: 'space', label: 'Deep Space 🚀' },
+    { value: 'ai', label: 'AI Frontier 🧠' },
 ];
 
 function userRowHtml(u) {
@@ -573,6 +579,134 @@ async function saveUserTheme(userId, theme, btn) {
         }
     } catch (err) {
         U.toast(`Update failed: ${err.message}`, 'error');
+    } finally {
+        U.setLoading(btn, false);
+    }
+}
+
+/* ============================== LEADERBOARD ============================== */
+let allAdminLeaderboard = [];
+
+function leaderboardRowHtml(u, rank) {
+    const rankClass = rank <= 3 ? ` top-${rank}` : '';
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+
+    return `
+      <tr data-id="${u.id}">
+        <td class="leaderboard-rank${rankClass}">${medal}</td>
+        <td style="font-weight:500;"><i class="ph ph-user"></i> ${U.escapeHtml(u.full_name || '—')}</td>
+        <td>${U.escapeHtml(u.email)}</td>
+        <td><i class="ph ph-play-circle"></i> ${u.lessons_watched ?? 0}</td>
+        <td><i class="ph ph-books"></i> ${u.modules_completed ?? 0}</td>
+        <td><span class="points-pill"><i class="ph ph-trophy"></i> ${u.points ?? 0} pts</span></td>
+        <td>
+          <div class="points-editor">
+            <button type="button" class="btn-outline" style="padding:4px 10px;" data-action="subtract" title="Subtract 10"><i class="ph ph-minus"></i> 10</button>
+            <button type="button" class="btn-outline" style="padding:4px 10px;" data-action="add" title="Add 10"><i class="ph ph-plus"></i> 10</button>
+            <input type="number" class="points-set-input" placeholder="Set total…" style="padding:4px 8px;">
+            <button type="button" class="btn-glow" style="padding:4px 10px; font-size:0.75rem;" data-action="set"><i class="ph ph-floppy-disk"></i> Save</button>
+          </div>
+        </td>
+      </tr>`;
+}
+
+function renderLeaderboardTable(users) {
+    const wrap = document.getElementById('leaderboardTableWrap');
+    if (!wrap) return;
+    if (users.length === 0) {
+        wrap.innerHTML = `<div class="empty-state"><i class="ph ph-trophy"></i> No personnel found.</div>`;
+        return;
+    }
+    wrap.innerHTML = `
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Rank</th><th>Name</th><th>Email</th><th>Watched</th><th>Modules</th><th>Points</th><th>Adjust</th></tr>
+          </thead>
+          <tbody>${users.map((u, i) => leaderboardRowHtml(u, i + 1)).join('')}</tbody>
+        </table>
+      </div>`;
+
+    wrap.querySelectorAll('tr[data-id]').forEach((row) => {
+        const id = row.dataset.id;
+        const u = allAdminLeaderboard.find((x) => x.id === id);
+        const setInput = row.querySelector('.points-set-input');
+
+        row.querySelector('[data-action="add"]').addEventListener('click', (e) => quickAdjustPoints(u, 10, e.currentTarget));
+        row.querySelector('[data-action="subtract"]').addEventListener('click', (e) => quickAdjustPoints(u, -10, e.currentTarget));
+        row.querySelector('[data-action="set"]').addEventListener('click', (e) => {
+            const val = parseInt(setInput.value, 10);
+            if (Number.isNaN(val)) { U.toast('Enter a number to set the total.', 'error'); return; }
+            setTotalPoints(u, val, e.currentTarget);
+        });
+    });
+}
+
+async function loadLeaderboardTable() {
+    const wrap = document.getElementById('leaderboardTableWrap');
+    wrap.innerHTML = `<div class="loading-state"><i class="ph ph-spinner-gap ph-spin"></i> Fetching leaderboard...</div>`;
+
+    // Pull emails from profiles (the public `leaderboard` view intentionally omits them)
+    // and join in points / lessons_watched / modules_completed from the view.
+    const [{ data: profiles, error: err1 }, { data: board, error: err2 }] = await Promise.all([
+        window.CatalystDB.from('profiles').select('id, full_name, email'),
+        window.CatalystDB.from('leaderboard').select('*'),
+    ]);
+
+    if (err1 || err2) {
+        wrap.innerHTML = `<div class="error-state"><i class="ph ph-warning"></i> Error: ${U.escapeHtml((err1 || err2).message)}</div>`;
+        return;
+    }
+
+    const emailById = {};
+    (profiles || []).forEach((p) => { emailById[p.id] = p.email; });
+
+    allAdminLeaderboard = (board || []).map((u) => ({ ...u, email: emailById[u.id] || '' }));
+    renderLeaderboardTable(allAdminLeaderboard);
+}
+
+function filterLeaderboardTable() {
+    const query = document.getElementById('adminLeaderboardSearch').value.toLowerCase();
+    if (!query) return renderLeaderboardTable(allAdminLeaderboard);
+    const filtered = allAdminLeaderboard.filter((u) =>
+        [u.full_name, u.email].join(' ').toLowerCase().includes(query)
+    );
+    renderLeaderboardTable(filtered);
+}
+
+async function quickAdjustPoints(u, delta, btn) {
+    U.setLoading(btn, true, '...');
+    try {
+        const { error } = await window.CatalystDB.rpc('adjust_user_points', {
+            p_user_id: u.id,
+            p_delta: delta,
+            p_reason: `Manual ${delta > 0 ? 'bonus' : 'penalty'} from admin panel`,
+        });
+        if (error) throw error;
+        u.points = (u.points || 0) + delta;
+        U.toast(`${delta > 0 ? 'Added' : 'Subtracted'} ${Math.abs(delta)} points ${delta > 0 ? 'to' : 'from'} ${u.full_name || u.email}.`, 'success');
+        renderLeaderboardTable(allAdminLeaderboard);
+    } catch (err) {
+        U.toast(`Failed: ${err.message}`, 'error');
+    } finally {
+        U.setLoading(btn, false);
+    }
+}
+
+async function setTotalPoints(u, newTotal, btn) {
+    U.setLoading(btn, true, '...');
+    try {
+        const { error } = await window.CatalystDB.rpc('set_user_points', {
+            p_user_id: u.id,
+            p_new_total: newTotal,
+            p_reason: 'Manual leaderboard edit from admin panel',
+        });
+        if (error) throw error;
+        u.points = newTotal;
+        U.toast(`${u.full_name || u.email}'s total set to ${newTotal} points.`, 'success');
+        renderLeaderboardTable(allAdminLeaderboard);
+    } catch (err) {
+        U.toast(`Failed: ${err.message}`, 'error');
     } finally {
         U.setLoading(btn, false);
     }
@@ -718,6 +852,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('adminTeamSearch').addEventListener('keyup', U.debounce(filterTeamTable, 150));
     document.getElementById('memberForm').addEventListener('submit', handleMemberFormSubmit);
     document.getElementById('adminUserSearch').addEventListener('keyup', U.debounce(filterUsersTable, 150));
+    document.getElementById('adminLeaderboardSearch').addEventListener('keyup', U.debounce(filterLeaderboardTable, 150));
 
     
 
@@ -774,12 +909,13 @@ function renderModulesTable() {
     wrap.innerHTML = `
       <div class="table-wrap">
         <table class="admin-table">
-          <thead><tr><th>Order</th><th>Title</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Order</th><th>Title</th><th>Points</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             ${allAdminModules.map(m => `
               <tr data-id="${m.id}">
                 <td>${m.sort_order}</td>
                 <td>${U.escapeHtml(m.title)}</td>
+                <td><span class="points-pill"><i class="ph ph-trophy"></i> ${m.points_value ?? 50}</span></td>
                 <td>${m.published ? '<span class="pill pill-published"><i class="ph ph-wifi-high"></i> Live</span>' : '<span class="pill pill-draft"><i class="ph ph-wifi-slash"></i> Offline</span>'}</td>
                 <td>
                   <div class="row-actions">
@@ -803,7 +939,7 @@ function renderLessonsTable() {
     wrap.innerHTML = `
       <div class="table-wrap">
         <table class="admin-table">
-          <thead><tr><th>Order</th><th>Title</th><th>Module</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Order</th><th>Title</th><th>Module</th><th>Points</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             ${allAdminLessons.map(l => {
                 const m = allAdminModules.find(x => x.id === l.module_id);
@@ -812,6 +948,7 @@ function renderLessonsTable() {
                 <td>${l.sort_order}</td>
                 <td>${U.escapeHtml(l.title)}</td>
                 <td>${U.escapeHtml(m ? m.title : 'Unknown')}</td>
+                <td><span class="points-pill"><i class="ph ph-trophy"></i> ${l.points_value ?? 10}</span></td>
                 <td>${l.published ? '<span class="pill pill-published"><i class="ph ph-wifi-high"></i> Live</span>' : '<span class="pill pill-draft"><i class="ph ph-wifi-slash"></i> Offline</span>'}</td>
                 <td>
                   <div class="row-actions">
@@ -832,6 +969,7 @@ function openModuleForm(m) {
     document.getElementById('moduleTitle').value = m?.title || '';
     document.getElementById('moduleDescription').value = m?.description || '';
     document.getElementById('moduleOrder').value = m?.sort_order || 0;
+    document.getElementById('modulePoints').value = m?.points_value ?? 50;
     document.getElementById('modulePublished').checked = m ? !!m.published : false;
     document.getElementById('moduleFormTitle').textContent = m ? 'Edit Module' : 'New Module';
     document.getElementById('moduleFormError').classList.remove('visible');
@@ -845,6 +983,7 @@ async function handleModuleSubmit(e) {
         title: document.getElementById('moduleTitle').value,
         description: document.getElementById('moduleDescription').value,
         sort_order: parseInt(document.getElementById('moduleOrder').value) || 0,
+        points_value: Math.max(0, parseInt(document.getElementById('modulePoints').value, 10) || 0),
         published: document.getElementById('modulePublished').checked
     };
     
@@ -883,6 +1022,7 @@ function openLessonForm(l) {
     document.getElementById('lessonSummary').value = l?.catalyst_summary || '';
     document.getElementById('lessonAnalysis').value = l?.catalyst_analysis || '';
     document.getElementById('lessonOrder').value = l?.sort_order || 0;
+    document.getElementById('lessonPoints').value = l?.points_value ?? 10;
     document.getElementById('lessonPublished').checked = l ? !!l.published : false;
     document.getElementById('lessonFormTitle').textContent = l ? 'Edit Lesson' : 'New Lesson';
     document.getElementById('lessonFormError').classList.remove('visible');
@@ -900,6 +1040,7 @@ async function handleLessonSubmit(e) {
         catalyst_summary: document.getElementById('lessonSummary').value,
         catalyst_analysis: document.getElementById('lessonAnalysis').value,
         sort_order: parseInt(document.getElementById('lessonOrder').value) || 0,
+        points_value: Math.max(0, parseInt(document.getElementById('lessonPoints').value, 10) || 0),
         published: document.getElementById('lessonPublished').checked
     };
     
