@@ -54,6 +54,7 @@
             <button class="nav-tab active" onclick="openTab(event, 'home')">Home</button>
             <button class="nav-tab" onclick="openTab(event, 'learn')">Learn</button>
             <button class="nav-tab" onclick="openTab(event, 'events')">Events</button>
+            <button class="nav-tab" onclick="openTab(event, 'leaderboard')">Leaderboard</button>
             <button class="nav-tab" onclick="openTab(event, 'about')">About</button>
             <button class="nav-tab" onclick="openTab(event, 'more')">More</button>
             <a id="adminNavTab" class="nav-tab nav-tab-admin" href="admin.html" style="display:none;">Admin</a>
@@ -105,6 +106,22 @@
 
             <div class="grid" id="eventsGrid">
                 <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin"></i> Loading events…</div>
+            </div>
+        </div>
+
+        <div id="leaderboard" class="tab-content">
+            <div class="section-header reveal">
+                <h1><i class="ph ph-trophy"></i> Leaderboard</h1>
+                <p>Points for watching lessons and finishing modules. Climb the ranks.</p>
+            </div>
+            <div class="toolbar glass-panel reveal" style="padding: 10px 15px; margin-bottom: 20px; max-width: 500px;">
+                <div class="search-bar" style="border:none; padding:0;">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" id="leaderboardSearchInput" placeholder="Find a name..." onkeyup="filterLeaderboard()">
+                </div>
+            </div>
+            <div id="leaderboardWrap" class="glass-panel reveal" style="padding:0;">
+                <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin"></i> Loading leaderboard...</div>
             </div>
         </div>
 

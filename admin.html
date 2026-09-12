@@ -35,6 +35,7 @@
                 <button class="admin-nav-item" data-page="events" onclick="adminGoTo('events')"><i class="ph ph-calendar-blank"></i> Events</button>
                 <button class="admin-nav-item" data-page="team" onclick="adminGoTo('team')"><i class="ph ph-identification-badge"></i> Team</button>
                 <button class="admin-nav-item" data-page="partners" onclick="adminGoTo('partners')"><i class="ph ph-handshake"></i> Partnerships</button>
+                <button class="admin-nav-item" data-page="leaderboard" onclick="adminGoTo('leaderboard')"><i class="ph ph-trophy"></i> Leaderboard</button>
                 <button class="admin-nav-item" data-page="users" onclick="adminGoTo('users')"><i class="ph ph-users"></i> Users</button>
                 <button class="admin-nav-item" data-page="content" onclick="adminGoTo('content')"><i class="ph ph-browser"></i> Site Content</button>
             </nav>
@@ -147,6 +148,27 @@
                 </div>
             </section>
     
+            <!-- ============================== LEADERBOARD ============================== -->
+            <section class="admin-page reveal" id="admin-leaderboard">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Leaderboard</h1>
+                        <p class="admin-page-subtitle">Points earned from watching lessons and finishing modules. Adjust totals manually as needed.</p>
+                    </div>
+                </div>
+
+                <div class="toolbar glass-panel" style="padding: 10px 15px; margin-bottom: 20px;">
+                    <div class="search-bar" style="border:none; padding:0;">
+                        <i class="ph ph-magnifying-glass"></i>
+                        <input type="text" id="adminLeaderboardSearch" placeholder="Search users..." style="border:none;">
+                    </div>
+                </div>
+
+                <div id="leaderboardTableWrap" class="glass-panel" style="padding:0;">
+                    <div class="loading-state"><i class="ph ph-spinner-gap ph-spin"></i> Loading leaderboard…</div>
+                </div>
+            </section>
+
             <!-- ============================== USERS ============================== -->
             <section class="admin-page reveal" id="admin-users">
                 <div class="admin-page-header">
@@ -166,6 +188,7 @@
                             <option value="robotic">Embedded Robotics</option>
                             <option value="biological">Biological Lab</option>
                             <option value="space">Deep Space</option>
+                            <option value="ai">AI Frontier</option>
                         </select>
                         <button type="button" class="btn-glow" id="btn-apply-global-theme" onclick="applyGlobalTheme()"><i class="ph ph-arrows-clockwise"></i> Execute Sync</button>
                     </div>
@@ -463,6 +486,11 @@
                     <label>Display Order</label>
                     <input type="number" id="moduleOrder" value="0">
                 </div>
+
+                <div class="form-group">
+                    <label><i class="ph ph-trophy"></i> Bonus Points (awarded on completing ALL lessons in this module)</label>
+                    <input type="number" id="modulePoints" value="50" min="0">
+                </div>
                 
                 <div class="form-group" style="display:flex; align-items:center; gap:10px;">
                     <input type="checkbox" id="modulePublished" style="width:auto; margin:0;">
@@ -519,6 +547,11 @@
                 <div class="form-group">
                     <label>Display Order</label>
                     <input type="number" id="lessonOrder" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="ph ph-trophy"></i> Points (awarded when a user watches this video)</label>
+                    <input type="number" id="lessonPoints" value="10" min="0">
                 </div>
                 
                 <div class="form-group" style="display:flex; align-items:center; gap:10px;">
