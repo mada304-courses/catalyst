@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalyst — Youth Innovation, Learning &amp; Community</title>
+    <meta name="description" content="Catalyst brings young people together through learning, innovation, collaboration, and meaningful opportunities to turn ideas into action.">
+    <meta property="og:title" content="Catalyst — Youth Innovation, Learning &amp; Community">
+    <meta property="og:description" content="Catalyst brings young people together through learning, innovation, collaboration, and meaningful opportunities to turn ideas into action.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://catalyst.linkpc.net/">
+    <meta property="og:image" content="name.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Catalyst — Youth Innovation, Learning &amp; Community">
+    <meta name="twitter:description" content="Catalyst brings young people together through learning, innovation, collaboration, and meaningful opportunities to turn ideas into action.">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Markdown & DOMPurify -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <a class="skip-link" href="#mainContent">Skip to content</a>
+
+    <div class="scroll-progress" id="scrollProgress"></div>
+    <div class="bg-orb bg-orb-a" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-b" aria-hidden="true"></div>
+    <div id="cursor-glow" aria-hidden="true"></div>
+
+    <header class="glass-header" id="siteHeader">
+        <div class="header-inner">
+            <div class="header-top">
+                <a href="#home" class="brand" onclick="navigateToTab('home'); return false;" aria-label="Catalyst home">
+                    <div class="logo">
+                        <img src="name.png" alt="Catalyst logo" width="156" height="42">
+                    </div>
+                </a>
+
+                <nav class="main-nav" id="mainNav" aria-label="Primary navigation">
+                    <button type="button" class="nav-tab active" data-tab="home" onclick="openTab(event, 'home')">Home</button>
+                    <button type="button" class="nav-tab" data-tab="learn" onclick="openTab(event, 'learn')">Learn</button>
+                    <button type="button" class="nav-tab" data-tab="events" onclick="openTab(event, 'events')">Events</button>
+                    <button type="button" class="nav-tab" data-tab="leaderboard" onclick="openTab(event, 'leaderboard')">Leaderboard</button>
+                    <button type="button" class="nav-tab" data-tab="about" onclick="openTab(event, 'about')">About</button>
+                    <button type="button" class="nav-tab" data-tab="more" onclick="openTab(event, 'more')">Get Involved</button>
+                    <a id="adminNavTab" class="nav-tab nav-tab-admin" href="admin.html" style="display:none;">Admin</a>
+                </nav>
+
+                <div class="header-controls">
+                    <div class="search-bar">
+                        <label for="searchInput" class="sr-only">Search events</label>
+                        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                        <input type="text" id="searchInput" placeholder="Search events..." onkeyup="handleSearch()" aria-label="Search events">
+                    </div>
+                    <button type="button" class="theme-toggle btn-icon" onclick="toggleTheme()" id="themeBtn" title="Toggle light or dark theme" aria-label="Toggle color theme">
+                        <i class="ph ph-moon-stars" aria-hidden="true"></i>
+                    </button>
+                    <span class="account-theme-badge" id="accountThemeBadge"></span>
+                    <div id="authArea"><!-- login/signup buttons or user chip render here --></div>
+                    <button type="button" class="mobile-menu-toggle btn-icon" id="mobileMenuBtn" onclick="toggleMobileNav()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mainNav">
+                        <i class="ph ph-list" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="mainContent">
+        <!-- CMS-controlled announcement banner (hidden unless enabled in Supabase site_settings) -->
+        <div class="construction-banner" id="constructionBanner" style="display:none;" role="status" aria-live="polite"></div>
+
+        <!-- ============================== HOME TAB (7-SECTION LANDING PAGE) ============================== -->
+        <div id="home" class="tab-content active">
+
+            <!-- SECTION 1 — HERO -->
+            <section class="home-hero-section" aria-labelledby="homeHeading">
+                <div class="hero-grid">
+                    <div class="hero-copy">
+                        <div class="hero-descriptor" id="homeEyebrow">
+                            <span class="descriptor-dot" aria-hidden="true"></span>
+                            <span>YOUTH INNOVATION</span>
+                            <span class="descriptor-sep" aria-hidden="true">/</span>
+                            <span>LEARNING</span>
+                            <span class="descriptor-sep" aria-hidden="true">/</span>
+                            <span>COMMUNITY</span>
+                        </div>
+
+                        <h1 id="homeHeading" class="hero-title">Sparking Change. Turning Ideas into Action.</h1>
+
+                        <p id="homeIntro" class="lead-text">A youth-driven community where curiosity becomes capability, ideas become solutions, and young people gain the confidence and opportunities to make a difference.</p>
+
+                        <div class="hero-actions">
+                            <button type="button" class="btn-primary btn-lg" id="homePrimaryCta" onclick="openJoinCatalyst()">
+                                <span>Join Catalyst</span>
+                                <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn-outline btn-lg" id="homeSecondaryCta" onclick="navigateToTab('events')">
+                                <span>Explore Opportunities</span>
+                                <i class="ph ph-compass" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="hero-disciplines" aria-label="Multidisciplinary focus areas">
+                            <span class="discipline-label">Open across fields:</span>
+                            <div class="discipline-pills">
+                                <span class="discipline-pill">Technology</span>
+                                <span class="discipline-pill">Medicine &amp; Science</span>
+                                <span class="discipline-pill">Entrepreneurship</span>
+                                <span class="discipline-pill">Sustainability</span>
+                                <span class="discipline-pill">Social Impact</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual">
+                        <div class="hero-editorial-frame">
+                            <img src="img/hero-editorial-collage.svg" alt="Illustration of Catalyst's multidisciplinary youth innovation network linking technology, science, ventures, and social impact" class="hero-illustration" width="640" height="520">
+
+                            <div class="hero-editorial-cards">
+                                <div class="hero-floating-card hero-card-belief">
+                                    <span class="card-micro-label">Our Core Belief</span>
+                                    <p>Potential becomes impact when young people have the opportunity, support, and confidence to act.</p>
+                                </div>
+                                <a href="#journeySection" class="hero-floating-card hero-card-path" onclick="scrollToHomeSection('journeySection'); return false;">
+                                    <span class="card-micro-label">The Catalyst Pathway</span>
+                                    <div class="mini-pathway">
+                                        <span>Explore</span>
+                                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                                        <span>Learn</span>
+                                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                                        <span>Build</span>
+                                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                                        <strong>Impact</strong>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2 — WHAT WE DO -->
+            <section class="home-section" id="whatWeDoSection" aria-labelledby="whatWeDoHeading">
+                <div class="section-intro reveal">
+                    <span class="section-eyebrow">What We Do</span>
+                    <h2 id="whatWeDoHeading" class="section-title">Opportunities to Explore. Experiences to Grow.</h2>
+                    <p class="section-subtitle">From the first spark of curiosity to the confidence to build something meaningful, Catalyst creates experiences that help young people discover, learn, and take action.</p>
+                </div>
+
+                <div class="activities-grid">
+                    <!-- 1. Hackathons & Competitions -->
+                    <article class="activity-card activity-card-featured reveal" data-variant="sprint">
+                        <div class="activity-visual" aria-hidden="true">
+                            <svg viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="12" y="14" width="256" height="82" rx="12" fill="currentColor" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.12"/>
+                                <path d="M36 74L74 38L116 60L164 28L212 52L244 32" stroke="var(--accent-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="36" cy="74" r="5" fill="var(--accent-color)"/>
+                                <circle cx="74" cy="38" r="5" fill="currentColor" fill-opacity="0.7"/>
+                                <circle cx="116" cy="60" r="5" fill="currentColor" fill-opacity="0.7"/>
+                                <circle cx="164" cy="28" r="6" fill="var(--accent-color)"/>
+                                <circle cx="244" cy="32" r="5" fill="var(--accent-color)"/>
+                            </svg>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-index">01</span>
+                            <span class="activity-tag">Team Collaboration</span>
+                        </div>
+                        <h3>Hackathons &amp; Competitions</h3>
+                        <p>Team-based experiences where participants investigate problems, experiment with ideas, and develop solutions.</p>
+                        <button type="button" class="activity-link" onclick="navigateToTab('events')">
+                            <span>Explore challenges</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+
+                    <!-- 2. Talks & Speaker Sessions -->
+                    <article class="activity-card reveal" data-variant="talks">
+                        <div class="activity-visual" aria-hidden="true">
+                            <svg viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="20" y="18" width="144" height="44" rx="10" fill="var(--accent-color)" fill-opacity="0.12" stroke="var(--accent-color)" stroke-opacity="0.45"/>
+                                <line x1="36" y1="35" x2="128" y2="35" stroke="currentColor" stroke-opacity="0.7" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="36" y1="47" x2="96" y2="47" stroke="currentColor" stroke-opacity="0.35" stroke-width="2.5" stroke-linecap="round"/>
+                                <rect x="114" y="48" width="146" height="44" rx="10" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.18"/>
+                                <circle cx="136" cy="70" r="8" fill="var(--accent-color)" fill-opacity="0.8"/>
+                                <line x1="154" y1="66" x2="236" y2="66" stroke="currentColor" stroke-opacity="0.6" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="154" y1="77" x2="208" y2="77" stroke="currentColor" stroke-opacity="0.3" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-index">02</span>
+                            <span class="activity-tag">Real-World Perspectives</span>
+                        </div>
+                        <h3>Talks &amp; Speaker Sessions</h3>
+                        <p>Direct access to experts and professionals who share knowledge, career insights, and lessons from experience.</p>
+                        <button type="button" class="activity-link" onclick="navigateToTab('events')">
+                            <span>See speaker events</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+
+                    <!-- 3. Workshops -->
+                    <article class="activity-card reveal" data-variant="workshops">
+                        <div class="activity-visual" aria-hidden="true">
+                            <svg viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="22" y="18" width="70" height="70" rx="12" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.16"/>
+                                <rect x="105" y="18" width="70" height="70" rx="12" fill="var(--accent-color)" fill-opacity="0.12" stroke="var(--accent-color)" stroke-opacity="0.5"/>
+                                <rect x="188" y="18" width="70" height="70" rx="12" fill="currentColor" fill-opacity="0.05" stroke="currentColor" stroke-opacity="0.16"/>
+                                <path d="M47 53L57 63L71 45" stroke="currentColor" stroke-opacity="0.65" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M128 45L140 37L152 45V60L140 68L128 60V45Z" stroke="var(--accent-color)" stroke-width="2.2" stroke-linejoin="round"/>
+                                <circle cx="223" cy="53" r="11" stroke="currentColor" stroke-opacity="0.45" stroke-width="2" stroke-dasharray="4 3"/>
+                            </svg>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-index">03</span>
+                            <span class="activity-tag">Practical Mastery</span>
+                        </div>
+                        <h3>Workshops</h3>
+                        <p>Hands-on experiences that introduce useful tools and help participants develop practical skills.</p>
+                        <button type="button" class="activity-link" onclick="navigateToTab('learn')">
+                            <span>Browse Learning Hub</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+
+                    <!-- 4. Mentorship -->
+                    <article class="activity-card reveal" data-variant="mentorship">
+                        <div class="activity-visual" aria-hidden="true">
+                            <svg viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="88" cy="55" r="28" stroke="currentColor" stroke-opacity="0.22" stroke-width="2"/>
+                                <circle cx="88" cy="55" r="14" fill="currentColor" fill-opacity="0.1"/>
+                                <circle cx="192" cy="55" r="28" stroke="var(--accent-color)" stroke-opacity="0.6" stroke-width="2"/>
+                                <circle cx="192" cy="55" r="14" fill="var(--accent-color)" fill-opacity="0.2"/>
+                                <path d="M116 55H164" stroke="var(--accent-color)" stroke-width="2" stroke-dasharray="4 4"/>
+                                <circle cx="140" cy="55" r="4" fill="var(--accent-color)"/>
+                            </svg>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-index">04</span>
+                            <span class="activity-tag">Guided Growth</span>
+                        </div>
+                        <h3>Mentorship</h3>
+                        <p>Guidance and constructive feedback from people who can help participants refine ideas and navigate challenges.</p>
+                        <button type="button" class="activity-link" onclick="scrollToHomeSection('communitySection')">
+                            <span>Meet our community</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+
+                    <!-- 5. Innovation Challenges -->
+                    <article class="activity-card reveal" data-variant="challenges">
+                        <div class="activity-visual" aria-hidden="true">
+                            <svg viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <polygon points="140,18 188,88 92,88" fill="var(--accent-color)" fill-opacity="0.12" stroke="var(--accent-color)" stroke-width="2" stroke-linejoin="round"/>
+                                <circle cx="140" cy="60" r="10" fill="var(--accent-color)"/>
+                                <line x1="42" y1="36" x2="86" y2="36" stroke="currentColor" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="194" y1="36" x2="238" y2="36" stroke="currentColor" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="34" y1="72" x2="72" y2="72" stroke="currentColor" stroke-opacity="0.2" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="208" y1="72" x2="246" y2="72" stroke="currentColor" stroke-opacity="0.2" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-index">05</span>
+                            <span class="activity-tag">Creative Problem-Solving</span>
+                        </div>
+                        <h3>Innovation Challenges</h3>
+                        <p>Structured opportunities to think critically, experiment, and approach real-world problems creatively.</p>
+                        <button type="button" class="activity-link" onclick="navigateToTab('events')">
+                            <span>View opportunities</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+
+                    <!-- 6. Community Initiatives -->
+                    <article class="activity-card activity-card-accent reveal" data-variant="community">
+                        <div class="activity-visual" aria-hidden="true">
+                            <svg viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="140" cy="55" r="16" fill="var(--accent-color)" fill-opacity="0.22" stroke="var(--accent-color)" stroke-width="2"/>
+                                <circle cx="64" cy="34" r="10" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.4"/>
+                                <circle cx="216" cy="34" r="10" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.4"/>
+                                <circle cx="64" cy="78" r="10" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.4"/>
+                                <circle cx="216" cy="78" r="10" fill="currentColor" fill-opacity="0.12" stroke="currentColor" stroke-opacity="0.4"/>
+                                <path d="M74 38L125 51M206 38L155 51M74 74L125 59M206 74L155 59" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.8"/>
+                            </svg>
+                        </div>
+                        <div class="activity-meta">
+                            <span class="activity-index">06</span>
+                            <span class="activity-tag">Ongoing Ecosystem</span>
+                        </div>
+                        <h3>Community Initiatives</h3>
+                        <p>Spaces for collaboration, peer learning, knowledge exchange, and meaningful connections.</p>
+                        <button type="button" class="activity-link" onclick="navigateToTab('more')">
+                            <span>Get involved</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </article>
+                </div>
+            </section>
+
+            <!-- SECTION 3 — THE CATALYST JOURNEY -->
+            <section class="home-section journey-section" id="journeySection" aria-labelledby="journeyHeading">
+                <div class="section-intro reveal">
+                    <span class="section-eyebrow">The Catalyst Philosophy</span>
+                    <h2 id="journeyHeading" class="section-title">EXPLORE &rarr; LEARN &rarr; BUILD &rarr; IMPACT</h2>
+                    <p class="section-subtitle">Catalyst connects inspiration with implementation. Every initiative is designed as a connected pathway from first spark to meaningful real-world contribution.</p>
+                </div>
+
+                <div class="journey-track" role="list" aria-label="The four stages of the Catalyst journey">
+                    <article class="journey-stage is-highlighted reveal" role="listitem" tabindex="0">
+                        <div class="journey-stage-top">
+                            <span class="journey-step-num">01</span>
+                            <span class="journey-stage-icon" aria-hidden="true"><i class="ph ph-compass"></i></span>
+                        </div>
+                        <h3>Explore</h3>
+                        <span class="journey-stage-kicker">Discover possibilities</span>
+                        <p>Discover new possibilities, perspectives, disciplines, and opportunities.</p>
+                    </article>
+
+                    <div class="journey-connector" aria-hidden="true"><i class="ph ph-arrow-right"></i></div>
+
+                    <article class="journey-stage reveal" role="listitem" tabindex="0">
+                        <div class="journey-stage-top">
+                            <span class="journey-step-num">02</span>
+                            <span class="journey-stage-icon" aria-hidden="true"><i class="ph ph-book-open-text"></i></span>
+                        </div>
+                        <h3>Learn</h3>
+                        <span class="journey-stage-kicker">Develop capability</span>
+                        <p>Develop knowledge, practical skills, and confidence through guided experiences.</p>
+                    </article>
+
+                    <div class="journey-connector" aria-hidden="true"><i class="ph ph-arrow-right"></i></div>
+
+                    <article class="journey-stage reveal" role="listitem" tabindex="0">
+                        <div class="journey-stage-top">
+                            <span class="journey-step-num">03</span>
+                            <span class="journey-stage-icon" aria-hidden="true"><i class="ph ph-wrench"></i></span>
+                        </div>
+                        <h3>Build</h3>
+                        <span class="journey-stage-kicker">Apply ideas</span>
+                        <p>Apply what you learn through collaboration, projects, prototypes, and experimentation.</p>
+                    </article>
+
+                    <div class="journey-connector" aria-hidden="true"><i class="ph ph-arrow-right"></i></div>
+
+                    <article class="journey-stage reveal" role="listitem" tabindex="0">
+                        <div class="journey-stage-top">
+                            <span class="journey-step-num">04</span>
+                            <span class="journey-stage-icon" aria-hidden="true"><i class="ph ph-sparkle"></i></span>
+                        </div>
+                        <h3>Impact</h3>
+                        <span class="journey-stage-kicker">Create value</span>
+                        <p>Transform promising ideas into meaningful contributions to communities and society.</p>
+                    </article>
+                </div>
+
+                <div class="journey-pillars reveal">
+                    <div class="journey-pillar">
+                        <strong>Relevant experiences</strong>
+                        <span>Connect learning to authentic challenges and emerging opportunities.</span>
+                    </div>
+                    <div class="journey-pillar">
+                        <strong>Access to people</strong>
+                        <span>Gain insight from mentors, experts, collaborators, and peers.</span>
+                    </div>
+                    <div class="journey-pillar">
+                        <strong>Practical application</strong>
+                        <span>Turn concepts into prototypes, projects, initiatives, and informed next steps.</span>
+                    </div>
+                    <div class="journey-pillar">
+                        <strong>Supportive community</strong>
+                        <span>Sustain motivation, encourage responsible experimentation, and celebrate progress.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4 — UPCOMING EVENTS PREVIEW -->
+            <section class="home-section" id="homeEventsSection" aria-labelledby="homeEventsHeading">
+                <div class="section-header-split reveal">
+                    <div class="section-intro">
+                        <span class="section-eyebrow">What's Ahead</span>
+                        <h2 id="homeEventsHeading" class="section-title">Upcoming Events</h2>
+                        <p class="section-subtitle">Workshops, speaker sessions, hackathons, and community gatherings published across Catalyst.</p>
+                    </div>
+                    <button type="button" class="btn-outline" onclick="navigateToTab('events')">
+                        <span>View All Events</span>
+                        <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <div id="homeEventsPreview" class="home-events-grid">
+                    <div class="loading-state"><i class="ph ph-spinner-gap ph-spin" aria-hidden="true"></i> Loading upcoming events…</div>
+                </div>
+            </section>
+
+            <!-- SECTION 5 — THE CATALYST COMMUNITY -->
+            <section class="home-section" id="communitySection" aria-labelledby="communityHeading">
+                <div class="section-intro reveal">
+                    <span class="section-eyebrow">The Catalyst Community</span>
+                    <h2 id="communityHeading" class="section-title">Different Perspectives. One Shared Purpose.</h2>
+                    <p class="section-subtitle">Great ideas rarely happen in isolation. Catalyst brings together people with different experiences, skills, and perspectives to create opportunities that are stronger when shared.</p>
+                </div>
+
+                <div class="community-grid">
+                    <article class="community-card reveal">
+                        <div class="community-avatar-badge" aria-hidden="true">
+                            <i class="ph ph-student"></i>
+                        </div>
+                        <span class="community-role-label">01 / Youth &amp; Students</span>
+                        <h3>Participants</h3>
+                        <p>Curious, motivated young people ready to discover, learn, collaborate, and contribute.</p>
+                    </article>
+
+                    <article class="community-card reveal">
+                        <div class="community-avatar-badge" aria-hidden="true">
+                            <i class="ph ph-chats-circle"></i>
+                        </div>
+                        <span class="community-role-label">02 / Guidance &amp; Insight</span>
+                        <h3>Mentors &amp; Speakers</h3>
+                        <p>Experienced individuals who share knowledge, perspective, and encouragement.</p>
+                    </article>
+
+                    <article class="community-card reveal">
+                        <div class="community-avatar-badge" aria-hidden="true">
+                            <i class="ph ph-briefcase"></i>
+                        </div>
+                        <span class="community-role-label">03 / Industry &amp; Practice</span>
+                        <h3>Professionals</h3>
+                        <p>People connecting young innovators to real-world challenges, resources, and opportunities.</p>
+                    </article>
+
+                    <article class="community-card reveal">
+                        <div class="community-avatar-badge" aria-hidden="true">
+                            <i class="ph ph-buildings"></i>
+                        </div>
+                        <span class="community-role-label">04 / Ecosystem Allies</span>
+                        <h3>Partners</h3>
+                        <p>Organizations and institutions helping create opportunities, support initiatives, and extend our impact.</p>
+                    </article>
+                </div>
+
+                <div class="community-actions-bar reveal">
+                    <div class="community-actions-copy">
+                        <h3>Find your role inside Catalyst</h3>
+                        <p>Whether you are arriving to learn and build or looking to mentor, speak, or partner, there is a meaningful way to contribute.</p>
+                    </div>
+                    <div class="community-actions-buttons">
+                        <button type="button" class="btn-primary" onclick="openJoinCatalyst()">
+                            <span>Join as a Participant</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn-outline" onclick="navigateToTab('more')">
+                            <span>Become a Mentor or Speaker</span>
+                        </button>
+                        <button type="button" class="btn-outline" onclick="navigateToTab('more')">
+                            <span>Partner with Catalyst</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CMS-controlled Community Invite CTA (shown only when enabled with a valid URL in site_settings.community) -->
+                <div id="communityCtaWrapper" class="community-cms-banner reveal" style="display:none;">
+                    <div class="community-cms-inner">
+                        <div class="community-cms-icon" aria-hidden="true"><i class="ph ph-users-three"></i></div>
+                        <div class="community-cms-text">
+                            <span class="section-eyebrow">Community Workspace</span>
+                            <h3 id="communityCtaText">Connect with peers and mentors</h3>
+                        </div>
+                        <a id="communitySlackLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary">
+                            <span>Join the Catalyst Community</span>
+                            <i class="ph ph-arrow-up-right" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 6 — OUR IMPACT -->
+            <section class="home-section" id="impactSection" aria-labelledby="impactHeading">
+                <div class="impact-editorial-layout">
+                    <div class="impact-lead reveal">
+                        <span class="section-eyebrow">Our Impact</span>
+                        <h2 id="impactHeading" class="section-title">More Than an Experience. Something You Take Forward.</h2>
+                        <p class="section-subtitle">Our success is reflected not only in the experiences we deliver, but in what participants are able and motivated to do afterward.</p>
+
+                        <div class="impact-vision-box">
+                            <span class="card-micro-label">Our Long-Term Vision</span>
+                            <blockquote>&ldquo;A generation of confident, innovative young people equipped to shape a better future.&rdquo;</blockquote>
+                            <p class="impact-vision-note">Catalyst builds toward a growing network of thoughtful, skilled, and socially conscious young innovators prepared to contribute across disciplines.</p>
+                        </div>
+                    </div>
+
+                    <div class="impact-outcomes-grid">
+                        <article class="outcome-card reveal">
+                            <div class="outcome-icon" aria-hidden="true"><i class="ph ph-toolbox"></i></div>
+                            <h3>Practical Skills</h3>
+                            <p>Developing technical, creative, and collaborative capabilities.</p>
+                        </article>
+
+                        <article class="outcome-card reveal">
+                            <div class="outcome-icon" aria-hidden="true"><i class="ph ph-flame"></i></div>
+                            <h3>Confidence</h3>
+                            <p>Gaining the confidence to explore, experiment, and take initiative.</p>
+                        </article>
+
+                        <article class="outcome-card reveal">
+                            <div class="outcome-icon" aria-hidden="true"><i class="ph ph-graph"></i></div>
+                            <h3>Connections</h3>
+                            <p>Building relationships with peers, mentors, and professional communities.</p>
+                        </article>
+
+                        <article class="outcome-card reveal">
+                            <div class="outcome-icon" aria-hidden="true"><i class="ph ph-rocket-launch"></i></div>
+                            <h3>Action</h3>
+                            <p>Transforming promising ideas into projects, prototypes, and initiatives.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 7 — FINAL CALL TO ACTION -->
+            <section class="home-section final-cta-section reveal" aria-labelledby="homeCtaHeading">
+                <div class="final-cta-panel">
+                    <div class="final-cta-copy">
+                        <span class="section-eyebrow">Start With Curiosity</span>
+                        <h2 id="homeCtaHeading">Your Next Idea Could Start Here.</h2>
+                        <p id="homeCtaText">Whether you want to learn something new, meet inspiring people, or turn an idea into something real, there's a place for you at Catalyst.</p>
+                    </div>
+                    <div class="final-cta-actions">
+                        <button type="button" class="btn-primary btn-lg" onclick="openJoinCatalyst()">
+                            <span>Join Catalyst</span>
+                            <i class="ph ph-arrow-right" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn-outline btn-lg" onclick="navigateToTab('events')">
+                            <span>Explore Opportunities</span>
+                            <i class="ph ph-calendar-blank" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ============================== LEARNING HUB TAB ============================== -->
+        <div id="learn" class="tab-content">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Self-Paced &amp; Guided Learning</span>
+                <h1>Learning Hub</h1>
+                <p>EXPLORE &rarr; LEARN &rarr; BUILD &rarr; IMPACT</p>
+            </div>
+            <div id="learningModulesContainer">
+                <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin" aria-hidden="true"></i> Loading learning modules…</div>
+            </div>
+        </div>
+
+        <!-- ============================== EVENTS TAB ============================== -->
+        <div id="events" class="tab-content">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Programs &amp; Gatherings</span>
+                <h1>Events &amp; Opportunities</h1>
+                <p>Hackathons, workshops, speaker sessions, and innovation challenges across the Catalyst community.</p>
+            </div>
+
+            <div class="toolbar glass-panel reveal" style="padding: 10px 15px; margin-bottom: 24px; max-width: 500px;">
+                <div class="search-bar" style="border:none; padding:0; width:100%;">
+                    <label for="eventsSearchInput" class="sr-only">Filter events</label>
+                    <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                    <input type="text" id="eventsSearchInput" placeholder="Filter events by title, topic, or location..." onkeyup="handleSearch(this.value)" style="width:100%;">
+                </div>
+            </div>
+
+            <div class="grid" id="eventsGrid">
+                <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin" aria-hidden="true"></i> Loading events…</div>
+            </div>
+        </div>
+
+        <!-- ============================== LEADERBOARD TAB ============================== -->
+        <div id="leaderboard" class="tab-content">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Community Progress</span>
+                <h1><i class="ph ph-trophy" aria-hidden="true"></i> Leaderboard</h1>
+                <p>Points earned from watching lessons, passing checks, and completing modules in the Learning Hub.</p>
+            </div>
+            <div class="toolbar glass-panel reveal" style="padding: 10px 15px; margin-bottom: 20px; max-width: 500px;">
+                <div class="search-bar" style="border:none; padding:0; width:100%;">
+                    <label for="leaderboardSearchInput" class="sr-only">Find a member on the leaderboard</label>
+                    <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+                    <input type="text" id="leaderboardSearchInput" placeholder="Find a name..." onkeyup="filterLeaderboard()" style="width:100%;">
+                </div>
+            </div>
+            <div id="leaderboardWrap" class="glass-panel reveal" style="padding:0;">
+                <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin" aria-hidden="true"></i> Loading leaderboard…</div>
+            </div>
+        </div>
+
+        <!-- ============================== ABOUT TAB ============================== -->
+        <div id="about" class="tab-content">
+            <div class="about-hero-block reveal">
+                <span class="section-eyebrow">Who We Are</span>
+                <h1 id="aboutHeading">About Catalyst</h1>
+                <div class="about-lead-narrative glass-panel text-panel" id="aboutParagraphs">
+                    <p>Catalyst is a youth-driven initiative that equips young people to learn, create, collaborate, and address real-world challenges. We bring together ambitious students, emerging innovators, mentors, speakers, and professionals through purposeful experiences that build both capability and confidence.</p>
+                    <p>Our work spans hackathons, competitions, talks, workshops, mentorship, and community-led challenges. Each initiative is designed to move participants beyond passive inspiration: they investigate ideas, strengthen practical skills, form valuable relationships, and translate their potential into action.</p>
+                    <p>Catalyst is intentionally multidisciplinary. Whether a participant is interested in technology, medicine, science, entrepreneurship, sustainability, or social impact, they enter a community united by curiosity, initiative, and a commitment to positive change.</p>
+                </div>
+            </div>
+
+            <!-- Purpose -->
+            <section class="about-section reveal" aria-labelledby="aboutPurposeHeading">
+                <div class="purpose-callout">
+                    <span class="section-eyebrow">Our Purpose</span>
+                    <h2 id="aboutPurposeHeading">To create the conditions in which young people can turn curiosity into capability, ideas into solutions, and solutions into lasting impact.</h2>
+                </div>
+            </section>
+
+            <!-- Vision, Mission & Four Priorities -->
+            <section class="about-section reveal" aria-labelledby="aboutMissionHeading">
+                <div class="vision-mission-grid">
+                    <article class="vm-card">
+                        <span class="card-micro-label">Vision</span>
+                        <h3>A generation of confident, innovative young people equipped to shape a better future.</h3>
+                    </article>
+                    <article class="vm-card">
+                        <span class="card-micro-label">Mission</span>
+                        <h3 id="aboutMissionHeading">To provide inclusive learning experiences, meaningful connections, and practical opportunities that enable young people to explore, collaborate, build, and lead.</h3>
+                    </article>
+                </div>
+
+                <div class="priorities-header">
+                    <h3>Four Connected Priorities</h3>
+                    <p>How we put our mission into practice across every Catalyst program.</p>
+                </div>
+                <div class="priorities-grid">
+                    <div class="priority-item">
+                        <span class="priority-num">01</span>
+                        <h4>Inspire Exploration</h4>
+                        <p>Introduce participants to new ideas, fields, perspectives, and possibilities.</p>
+                    </div>
+                    <div class="priority-item">
+                        <span class="priority-num">02</span>
+                        <h4>Build Capability</h4>
+                        <p>Develop practical skills through hands-on learning, expert guidance, and constructive feedback.</p>
+                    </div>
+                    <div class="priority-item">
+                        <span class="priority-num">03</span>
+                        <h4>Enable Collaboration</h4>
+                        <p>Connect young people across disciplines and backgrounds so they can learn from one another and build stronger solutions together.</p>
+                    </div>
+                    <div class="priority-item">
+                        <span class="priority-num">04</span>
+                        <h4>Accelerate Action</h4>
+                        <p>Give participants platforms, resources, and support to move promising ideas toward real-world application.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- What We Do & Progression -->
+            <section class="about-section reveal" aria-labelledby="aboutWhatWeDoHeading">
+                <div class="section-intro">
+                    <span class="section-eyebrow">What We Do</span>
+                    <h2 id="aboutWhatWeDoHeading">From First Exposure to Confident Action</h2>
+                    <p class="section-subtitle">Our programs follow the progression <strong>EXPLORE &rarr; LEARN &rarr; BUILD &rarr; IMPACT</strong> across six core pillars:</p>
+                </div>
+                <div class="about-pillars-grid">
+                    <div class="about-pillar-card">
+                        <h4>Hackathons &amp; Competitions</h4>
+                        <p>Team-based experiences where participants define problems, test ideas, and develop solutions under focused conditions.</p>
+                    </div>
+                    <div class="about-pillar-card">
+                        <h4>Talks &amp; Speaker Sessions</h4>
+                        <p>Direct access to experts and professionals who share practical knowledge, career insight, and lessons from experience.</p>
+                    </div>
+                    <div class="about-pillar-card">
+                        <h4>Workshops</h4>
+                        <p>Hands-on sessions that introduce useful tools, strengthen technical and creative skills, and make unfamiliar fields accessible.</p>
+                    </div>
+                    <div class="about-pillar-card">
+                        <h4>Mentorship</h4>
+                        <p>Supportive relationships that help participants refine ideas, navigate challenges, and make informed decisions about their growth.</p>
+                    </div>
+                    <div class="about-pillar-card">
+                        <h4>Innovation Challenges</h4>
+                        <p>Structured prompts that develop critical thinking, creativity, resourcefulness, and a solution-oriented mindset.</p>
+                    </div>
+                    <div class="about-pillar-card">
+                        <h4>Community Initiatives</h4>
+                        <p>Ongoing spaces for peer learning, collaboration, knowledge exchange, and partnerships that extend beyond a single event.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Our Values -->
+            <section class="about-section reveal" aria-labelledby="aboutValuesHeading">
+                <div class="section-intro">
+                    <span class="section-eyebrow">Our Values</span>
+                    <h2 id="aboutValuesHeading">Principles That Guide Our Community</h2>
+                </div>
+                <div class="values-grid">
+                    <div class="value-card">
+                        <h4>Innovation</h4>
+                        <p>We approach challenges with curiosity, creativity, and the courage to test new possibilities.</p>
+                    </div>
+                    <div class="value-card">
+                        <h4>Collaboration</h4>
+                        <p>We value diverse perspectives and believe stronger solutions emerge when people build together.</p>
+                    </div>
+                    <div class="value-card">
+                        <h4>Growth</h4>
+                        <p>We embrace continuous learning, thoughtful feedback, and the willingness to improve.</p>
+                    </div>
+                    <div class="value-card">
+                        <h4>Impact</h4>
+                        <p>We focus on ideas and actions that can create meaningful, positive change.</p>
+                    </div>
+                    <div class="value-card">
+                        <h4>Empowerment</h4>
+                        <p>We give young people the confidence, tools, and opportunities to take ownership of their ideas.</p>
+                    </div>
+                    <div class="value-card">
+                        <h4>Inclusivity</h4>
+                        <p>We create welcoming opportunities for people across backgrounds, disciplines, and levels of experience.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Our Community & Impact We Seek -->
+            <section class="about-section reveal" aria-labelledby="aboutCommunityHeading">
+                <div class="about-two-col">
+                    <div class="about-panel">
+                        <span class="section-eyebrow">Our Community</span>
+                        <h3 id="aboutCommunityHeading">Shared Purpose Across Roles</h3>
+                        <ul class="editorial-list">
+                            <li><strong>Participants</strong> bring energy, questions, ideas, and a willingness to learn by doing.</li>
+                            <li><strong>Mentors &amp; speakers</strong> contribute expertise, perspective, encouragement, and constructive guidance.</li>
+                            <li><strong>Professionals &amp; partners</strong> connect participants to real needs, resources, networks, and opportunities.</li>
+                            <li><strong>Community members</strong> sustain a culture of generosity, collaboration, and mutual growth.</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-panel">
+                        <span class="section-eyebrow">The Impact We Seek</span>
+                        <h3>What Young People Carry Forward</h3>
+                        <ul class="editorial-list">
+                            <li>Develop practical, creative, and collaborative skills.</li>
+                            <li>Gain the confidence to take initiative and learn from experimentation.</li>
+                            <li>Build lasting relationships with peers, mentors, and professional communities.</li>
+                            <li>Understand complex challenges from multiple perspectives.</li>
+                            <li>Transform ideas into projects, prototypes, ventures, or community initiatives.</li>
+                            <li>See themselves as capable contributors to positive change.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="why-catalyst-box">
+                    <span class="card-micro-label">Why Catalyst</span>
+                    <p>A catalyst initiates change and accelerates transformation. That is the role we aspire to play in a young person&rsquo;s journey: not to prescribe a single destination, but to provide the environment, connections, and momentum that help them move forward.</p>
+                </div>
+            </section>
+
+            <!-- Dynamic Team Roster -->
+            <section class="about-section" aria-labelledby="teamSectionHeading">
+                <div class="section-header reveal">
+                    <span class="section-eyebrow">Leadership &amp; Organizers</span>
+                    <h2 id="teamSectionHeading"><i class="ph ph-identification-badge" aria-hidden="true"></i> Meet the Team</h2>
+                </div>
+                <div class="grid" id="teamGrid">
+                    <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin" aria-hidden="true"></i> Loading team…</div>
+                </div>
+            </section>
+
+            <!-- Dynamic Partnerships -->
+            <section class="about-section" aria-labelledby="partnersSectionHeading">
+                <div class="section-header reveal">
+                    <span class="section-eyebrow">Collaborators</span>
+                    <h2 id="partnersSectionHeading"><i class="ph ph-handshake" aria-hidden="true"></i> Partnerships</h2>
+                </div>
+                <div class="grid" id="partnersGrid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+                    <div class="loading-state reveal"><i class="ph ph-spinner-gap ph-spin" aria-hidden="true"></i> Loading partners…</div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ============================== GET INVOLVED / MORE TAB ============================== -->
+        <div id="more" class="tab-content">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Collaborate With Catalyst</span>
+                <h1>Get Involved</h1>
+                <p>There are many ways to participate, mentor, speak, volunteer, or partner with our community.</p>
+            </div>
+
+            <div class="get-involved-grid">
+                <article class="card involved-card reveal">
+                    <div class="involved-icon" aria-hidden="true"><i class="ph ph-handshake"></i></div>
+                    <h3>Partnerships &amp; Sponsorships</h3>
+                    <p id="moreSponsorship">Organizations and institutions help us create inclusive learning experiences, challenges, and real-world pathways for young innovators.</p>
+                    <div class="involved-card-actions">
+                        <button type="button" class="btn-outline" onclick="navigateToTab('about')">See Current Partners</button>
+                    </div>
+                </article>
+
+                <article class="card involved-card reveal">
+                    <div class="involved-icon" aria-hidden="true"><i class="ph ph-users-three"></i></div>
+                    <h3>Mentors, Speakers &amp; Volunteers</h3>
+                    <p id="moreVolunteer">Share your knowledge, experience, or time with our community. Whether you want to mentor young innovators, speak at our events, or volunteer in organizing our initiatives, we'd love to hear from you.</p>
+                    <div class="involved-card-actions involved-contact-actions">
+                        <a class="btn-outline" id="mentorContactBtn" href="mailto:catalyst.initiative.eg@gmail.com?subject=Interest%20in%20Joining%20Catalyst%20as%20a%20Mentor%2C%20Speaker%2C%20or%20Volunteer&amp;body=Hello%20Catalyst%20Team%2C%0D%0A%0D%0AI%20am%20interested%20in%20contributing%20to%20Catalyst%20as%20a%20mentor%2C%20speaker%2C%20or%20volunteer.%0D%0A%0D%0AA%20little%20about%20me%3A%0D%0AMy%20area%20of%20expertise%20or%20interest%3A%0D%0AHow%20I%20would%20like%20to%20contribute%3A%0D%0A%0D%0AI%20look%20forward%20to%20hearing%20from%20you.%0D%0A%0D%0ABest%20regards%2C">
+                            <i class="ph ph-envelope-simple" aria-hidden="true"></i>
+                            <span>Get in Touch</span>
+                        </a>
+                        <div class="involved-email-meta">
+                            <span class="involved-email-label">Email:</span>
+                            <span class="involved-email-address" id="mentorContactEmail">catalyst.initiative.eg@gmail.com</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card involved-card reveal">
+                    <div class="involved-icon" aria-hidden="true"><i class="ph ph-compass"></i></div>
+                    <h3>Start as a Participant</h3>
+                    <p>Join Catalyst to access the Learning Hub, follow upcoming workshops and hackathons, and track your progress alongside peers.</p>
+                    <div class="involved-card-actions">
+                        <button type="button" class="btn-primary" onclick="openJoinCatalyst()">Join Catalyst</button>
+                        <button type="button" class="btn-outline" onclick="navigateToTab('learn')">Open Learning Hub</button>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-brand-col">
+                    <a href="#home" class="footer-logo" onclick="navigateToTab('home'); return false;" aria-label="Catalyst home">
+                        <img src="name.png" alt="Catalyst" width="144" height="38" loading="lazy">
+                    </a>
+                    <p class="footer-tagline">Sparking Change. Turning Ideas into Action.</p>
+                    <p class="footer-summary">A youth-driven innovation, learning, and community organization where curiosity becomes capability and ideas become meaningful action.</p>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('home')">Home</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('about')">About Catalyst</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('events')">Events</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('learn')">Learning Hub</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('leaderboard')">Leaderboard</button></li>
+                    </ul>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><button type="button" class="footer-link-btn" onclick="openJoinCatalyst()">Join as a Participant</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('more')">Mentors &amp; Speakers</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('more')">Partner With Us</button></li>
+                        <li><button type="button" class="footer-link-btn" onclick="navigateToTab('about')">Team &amp; Partnerships</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p id="footerText">&copy; 2026 Catalyst. All rights reserved.</p>
+                <div class="footer-philosophy">EXPLORE &rarr; LEARN &rarr; BUILD &rarr; IMPACT</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================== AUTH MODAL ============================== -->
+    <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalHeading">
+        <div class="modal-box glass-panel">
+            <button type="button" class="modal-close" onclick="U.closeModal('authModal')" aria-label="Close modal"><i class="ph ph-x" aria-hidden="true"></i></button>
+
+            <!-- Login panel -->
+            <div id="authPanel-login">
+                <h2 id="authModalHeading">Log In</h2>
+                <p class="modal-subtitle">Welcome back to Catalyst.</p>
+                <div class="form-error-box" id="authError-login"></div>
+                <form onsubmit="handleLoginSubmit(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required autocomplete="email" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••">
+                    </div>
+                    <div class="modal-actions" style="justify-content: space-between; align-items:center;">
+                        <button type="button" class="btn-link" onclick="showAuthPanel('forgot')">Forgot password?</button>
+                        <button type="submit" class="btn-primary" id="loginSubmitBtn">Log In</button>
+                    </div>
+                </form>
+                <p class="modal-footer-link">No account yet? <a href="#" onclick="showAuthPanel('signup'); return false;">Join Catalyst</a></p>
+            </div>
+
+            <!-- Sign up panel -->
+            <div id="authPanel-signup" style="display:none;">
+                <h2>Join Catalyst</h2>
+                <p class="modal-subtitle">Create your account to explore learning modules, join events, and connect with the community.</p>
+                <div class="form-error-box" id="authError-signup"></div>
+                <div class="form-success-box" id="authSuccess-signup"></div>
+                <form onsubmit="handleSignupSubmit(event)">
+                    <div class="form-group">
+                        <label for="signupName">Full name</label>
+                        <input type="text" id="signupName" required autocomplete="name" placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email</label>
+                        <input type="email" id="signupEmail" required autocomplete="email" placeholder="you@example.com">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" required autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="signupConfirm">Confirm password</label>
+                            <input type="password" id="signupConfirm" required autocomplete="new-password">
+                        </div>
+                    </div>
+                    <p class="form-hint">Minimum 8 characters.</p>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary" id="signupSubmitBtn">Create Account</button>
+                    </div>
+                </form>
+                <p class="modal-footer-link">Already have an account? <a href="#" onclick="showAuthPanel('login'); return false;">Log in</a></p>
+            </div>
+
+            <!-- Forgot password panel -->
+            <div id="authPanel-forgot" style="display:none;">
+                <h2>Reset Password</h2>
+                <p class="modal-subtitle">We'll email you a link to set a new password.</p>
+                <div class="form-error-box" id="authError-forgot"></div>
+                <div class="form-success-box" id="authSuccess-forgot"></div>
+                <form onsubmit="handleForgotSubmit(event)">
+                    <div class="form-group">
+                        <label for="forgotEmail">Email</label>
+                        <input type="email" id="forgotEmail" required autocomplete="email" placeholder="you@example.com">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary" id="forgotSubmitBtn">Send Reset Link</button>
+                    </div>
+                </form>
+                <p class="modal-footer-link"><a href="#" onclick="showAuthPanel('login'); return false;">Back to log in</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================== SET NEW PASSWORD MODAL ============================== -->
+    <div class="modal-overlay" id="resetPasswordModal" role="dialog" aria-modal="true" aria-labelledby="resetPasswordHeading">
+        <div class="modal-box glass-panel">
+            <h2 id="resetPasswordHeading">Set New Password</h2>
+            <p class="modal-subtitle">Choose a new secure password.</p>
+            <div class="form-error-box" id="resetError"></div>
+            <form onsubmit="handleResetPasswordSubmit(event)">
+                <div class="form-group">
+                    <label for="resetPassword1">New password</label>
+                    <input type="password" id="resetPassword1" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="resetPassword2">Confirm new password</label>
+                    <input type="password" id="resetPassword2" required autocomplete="new-password">
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary" id="resetSubmitBtn">Save Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

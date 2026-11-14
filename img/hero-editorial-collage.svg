@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 520" fill="none" role="img" aria-labelledby="heroSvgTitle heroSvgDesc">
+  <title id="heroSvgTitle">Catalyst Multidisciplinary Youth Innovation</title>
+  <desc id="heroSvgDesc">Editorial diagram illustrating youth innovators collaborating across technology, science, entrepreneurship, sustainability, and social impact along the Explore, Learn, Build, Impact pathway.</desc>
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="640" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#151b24"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accentGlow" x1="160" y1="80" x2="500" y2="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#356FC5" stop-opacity="0.26"/>
+      <stop offset="100%" stop-color="#78BDB8" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="cardSurface" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1c2430"/>
+      <stop offset="100%" stop-color="#141a23"/>
+    </linearGradient>
+    <pattern id="dotGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#f6f4f0" fill-opacity="0.1"/>
+    </pattern>
+  </defs>
+
+  <!-- Outer Editorial Canvas -->
+  <rect width="640" height="520" rx="24" fill="url(#bgGrad)"/>
+  <rect width="640" height="520" rx="24" fill="url(#dotGrid)"/>
+  <circle cx="360" cy="240" r="195" fill="url(#accentGlow)"/>
+  <rect x="1" y="1" width="638" height="518" rx="23" stroke="#f6f4f0" stroke-opacity="0.1" stroke-width="2"/>
+
+  <!-- Orbital Connection Rings -->
+  <circle cx="320" cy="250" r="165" stroke="#f6f4f0" stroke-opacity="0.1" stroke-dasharray="6 8" stroke-width="1.5"/>
+  <circle cx="320" cy="250" r="112" stroke="#6F9DE8" stroke-opacity="0.34" stroke-width="1.5"/>
+
+  <!-- Top Header Strip Inside Illustration -->
+  <rect x="32" y="28" width="576" height="44" rx="12" fill="#18202b" stroke="#f6f4f0" stroke-opacity="0.1"/>
+  <circle cx="56" cy="50" r="5" fill="#8FB5F5"/>
+  <text x="72" y="54" fill="#f6f4f0" font-family="Space Grotesk, Inter, sans-serif" font-size="13" font-weight="600" letter-spacing="0.08em">MULTIDISCIPLINARY INNOVATION NETWORK</text>
+  <rect x="468" y="39" width="124" height="22" rx="11" fill="#356FC5" fill-opacity="0.22" stroke="#6F9DE8" stroke-opacity="0.45"/>
+  <text x="530" y="54" text-anchor="middle" fill="#A8C7FA" font-family="Inter, sans-serif" font-size="11" font-weight="600">YOUTH-DRIVEN</text>
+
+  <!-- Connecting Pathways between Discipline Nodes & Center -->
+  <path d="M168 158 L272 222" stroke="#6F9DE8" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
+  <path d="M472 158 L368 222" stroke="#f6f4f0" stroke-opacity="0.28" stroke-width="2" stroke-linecap="round"/>
+  <path d="M168 348 L272 280" stroke="#f6f4f0" stroke-opacity="0.28" stroke-width="2" stroke-linecap="round"/>
+  <path d="M472 348 L368 280" stroke="#78BDB8" stroke-opacity="0.55" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Node 1: Technology & Engineering (Top Left) -->
+  <g transform="translate(46, 102)">
+    <rect width="176" height="86" rx="14" fill="url(#cardSurface)" stroke="#f6f4f0" stroke-opacity="0.14"/>
+    <rect x="16" y="16" width="32" height="32" rx="8" fill="#6F9DE8" fill-opacity="0.16"/>
+    <path d="M27 27L22 32L27 37M37 27L42 32L37 37M34 25L30 39" stroke="#8FB5F5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="58" y="30" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700">Technology</text>
+    <text x="58" y="47" fill="#9ea8b8" font-family="Inter, sans-serif" font-size="11">Prototypes &amp; Systems</text>
+    <rect x="16" y="60" width="144" height="6" rx="3" fill="#273140"/>
+    <rect x="16" y="60" width="102" height="6" rx="3" fill="#6F9DE8"/>
+  </g>
+
+  <!-- Node 2: Medicine & Science (Top Right) -->
+  <g transform="translate(418, 102)">
+    <rect width="176" height="86" rx="14" fill="url(#cardSurface)" stroke="#f6f4f0" stroke-opacity="0.14"/>
+    <rect x="16" y="16" width="32" height="32" rx="8" fill="#f6f4f0" fill-opacity="0.08"/>
+    <path d="M32 24V40M24 32H40" stroke="#f6f4f0" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="32" cy="32" r="11" stroke="#78BDB8" stroke-opacity="0.65" stroke-width="1.5"/>
+    <text x="58" y="30" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700">Science &amp; Med</text>
+    <text x="58" y="47" fill="#9ea8b8" font-family="Inter, sans-serif" font-size="11">Research &amp; Discovery</text>
+    <rect x="16" y="60" width="144" height="6" rx="3" fill="#273140"/>
+    <rect x="16" y="60" width="88" height="6" rx="3" fill="#f6f4f0" fill-opacity="0.7"/>
+  </g>
+
+  <!-- Node 3: Entrepreneurship & Design (Bottom Left) -->
+  <g transform="translate(46, 314)">
+    <rect width="176" height="86" rx="14" fill="url(#cardSurface)" stroke="#f6f4f0" stroke-opacity="0.14"/>
+    <rect x="16" y="16" width="32" height="32" rx="8" fill="#f6f4f0" fill-opacity="0.08"/>
+    <path d="M24 38L30 30L35 34L41 25" stroke="#f6f4f0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="41" cy="25" r="2.5" fill="#8FB5F5"/>
+    <text x="58" y="30" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700">Ventures</text>
+    <text x="58" y="47" fill="#9ea8b8" font-family="Inter, sans-serif" font-size="11">Ideas to Action</text>
+    <rect x="16" y="60" width="144" height="6" rx="3" fill="#273140"/>
+    <rect x="16" y="60" width="96" height="6" rx="3" fill="#f6f4f0" fill-opacity="0.7"/>
+  </g>
+
+  <!-- Node 4: Sustainability & Social Impact (Bottom Right) -->
+  <g transform="translate(418, 314)">
+    <rect width="176" height="86" rx="14" fill="url(#cardSurface)" stroke="#f6f4f0" stroke-opacity="0.14"/>
+    <rect x="16" y="16" width="32" height="32" rx="8" fill="#78BDB8" fill-opacity="0.16"/>
+    <path d="M24 38C24 30 30 25 39 25C39 34 34 40 24 38Z" stroke="#78BDB8" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M24 38L33 30" stroke="#78BDB8" stroke-width="1.8" stroke-linecap="round"/>
+    <text x="58" y="30" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="700">Social Impact</text>
+    <text x="58" y="47" fill="#9ea8b8" font-family="Inter, sans-serif" font-size="11">Community Solutions</text>
+    <rect x="16" y="60" width="144" height="6" rx="3" fill="#273140"/>
+    <rect x="16" y="60" width="118" height="6" rx="3" fill="#78BDB8"/>
+  </g>
+
+  <!-- Central Collaboration Core -->
+  <g transform="translate(248, 182)">
+    <rect width="144" height="136" rx="22" fill="#18202c" stroke="#6F9DE8" stroke-opacity="0.7" stroke-width="2"/>
+    <circle cx="72" cy="52" r="24" fill="#356FC5" fill-opacity="0.22" stroke="#8FB5F5" stroke-width="1.5"/>
+    <path d="M75 38L62 54H72L69 66L82 50H72L75 38Z" fill="#8FB5F5"/>
+    <text x="72" y="96" text-anchor="middle" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="700" letter-spacing="0.06em">CATALYST</text>
+    <text x="72" y="114" text-anchor="middle" fill="#9ea8b8" font-family="Inter, sans-serif" font-size="11">Curiosity + Mentors</text>
+  </g>
+
+  <!-- Bottom 4-Stage Philosophy Ribbon -->
+  <g transform="translate(32, 434)">
+    <rect width="576" height="54" rx="14" fill="#18202b" stroke="#f6f4f0" stroke-opacity="0.1"/>
+    <g transform="translate(24, 16)">
+      <circle cx="8" cy="11" r="6" fill="#6F9DE8" fill-opacity="0.25" stroke="#6F9DE8" stroke-width="1.5"/>
+      <text x="22" y="15" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="700" letter-spacing="0.05em">EXPLORE</text>
+    </g>
+    <path d="M132 27H154M150 23L154 27L150 31" stroke="#6F9DE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(168, 16)">
+      <circle cx="8" cy="11" r="6" fill="#6F9DE8" fill-opacity="0.45" stroke="#8FB5F5" stroke-width="1.5"/>
+      <text x="22" y="15" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="700" letter-spacing="0.05em">LEARN</text>
+    </g>
+    <path d="M262 27H284M280 23L284 27L280 31" stroke="#8FB5F5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(298, 16)">
+      <circle cx="8" cy="11" r="6" fill="#8FB5F5" fill-opacity="0.7" stroke="#8FB5F5" stroke-width="1.5"/>
+      <text x="22" y="15" fill="#f6f4f0" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="700" letter-spacing="0.05em">BUILD</text>
+    </g>
+    <path d="M390 27H412M408 23L412 27L408 31" stroke="#78BDB8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(426, 16)">
+      <circle cx="8" cy="11" r="6" fill="#78BDB8"/>
+      <text x="22" y="15" fill="#A8C7FA" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="700" letter-spacing="0.05em">IMPACT</text>
+    </g>
+  </g>
+</svg>
